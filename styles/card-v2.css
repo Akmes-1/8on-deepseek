@@ -1,0 +1,821 @@
+/* ============================================================================
+   card-v2.css —— 卡面 v2（做旧硬卡纸）+ 出牌演出（重量感 / 仪式感，校园版）
+   引入：dev/index.html 里 animations.css 之后加 <link … href="styles/card-v2.css">
+        （无 @import、不改 cards.css，删掉这一行即完整回退到旧卡面）
+   卡面 DOM（新增的 4 个装饰节点都无文本、aria-hidden="true"）：
+        <button class="card cv2-card cv2-card--hand card--attack card--rare">
+          <i class="cv2-fold"></i>
+          <div class="cv2-cost" data-cost="2"><i></i><i></i><i></i></div>
+          <div class="card__band cv2-band">…</div>  <div class="card__name cv2-name">…</div>
+          <div class="card__art cv2-art">…</div>    <div class="card__text cv2-text">…</div>
+          <div class="cv2-imprints"><span class="cv2-imprint">创可贴</span></div>
+          <div class="cv2-seal"></div>
+        </button>
+        手牌加 .cv2-card--hand（168×222），图鉴加 .cv2-card--codex（208×292）。
+   出牌演出：战场槽位补两个伴生节点（JS 建、样式在本文件）
+        <div class="cv2-dust cv2-dust--attack"></div>（约 1s 后移除）
+        <div class="cv2-residue cv2-residue--attack"></div>（约 2.4s 后移除）
+        战场容器加 .cv2-rumble / .cv2-impact；大招给 <body> 加 .cv2-ult-ceremony。
+   JS 节奏：手牌加 .cv2-play-enter → 240ms 后 render() → 战场卡加 .cv2-play-slam
+        （大招 .cv2-play-ceremony），整段 ≤ 760ms。
+   ============================================================================ */
+
+:root {
+  /* 做旧纸 / 兽骨灰的基调；有设计令牌时用令牌，没令牌时用后面的兜底值 */
+  --cv2-surface: color-mix(in srgb, var(--paper, #FBF7EC) 82%, #6E6350);
+  --cv2-surface-deep: color-mix(in srgb, var(--paper, #FBF7EC) 66%, #4A4235);
+  --cv2-edge: color-mix(in srgb, var(--cv2-surface-deep) 78%, #000);
+  --cv2-edge-hi: color-mix(in srgb, var(--cv2-surface) 62%, #FFFDF6);
+  --cv2-ink: var(--ink, #23324F);
+  --cv2-ink-soft: var(--ink-soft, #4A5C7A);
+  --cv2-scribe: #7A6A52;                       /* 姓名条与手写刻痕 */
+  --cv2-type: var(--card-accent, var(--c-accent, #5BAAE0));
+  --cv2-grain: rgba(35, 50, 79, 0.05);
+  --cv2-fold: 20px;                            /* 折角边长，随尺寸覆盖 */
+  --cv2-cost-cell: 7px;
+  --cv2-flight-y: -118px;
+  --cv2-flight-rot: -8deg;
+  --cv2-flight-scale: 1.2;
+  --cv2-play: 300ms;
+  --cv2-ease-slam: cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+/* ============================================================================
+   1. 卡面：一块牌匾
+   ============================================================================ */
+
+.cv2-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  border: 0;
+  border-radius: 5px;
+  padding: 0;
+  color: var(--cv2-ink);
+  cursor: pointer;
+  user-select: none;
+  transform-origin: 50% 92%;
+  transition: transform 140ms var(--ease-out, cubic-bezier(0.22, 0.9, 0.25, 1)),
+              box-shadow 140ms var(--ease-out, cubic-bezier(0.22, 0.9, 0.25, 1)),
+              filter 140ms linear;
+  /* 纸质：斜向纤维 + 深色颗粒；做旧与内阴影交给 ::after */
+  background-image:
+    repeating-linear-gradient(58deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(-32deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 7px),
+    repeating-conic-gradient(from 12deg at 50% 50%, var(--cv2-grain) 0% 25%, transparent 0% 50%),
+    radial-gradient(130% 100% at 22% 0%, rgba(255, 255, 255, 0.14), transparent 58%),
+    linear-gradient(166deg, var(--cv2-surface) 0%, var(--cv2-surface-deep) 100%);
+  background-size: auto, auto, 3px 3px, auto, auto;
+  box-shadow:
+    0 14px 26px rgba(0, 0, 0, 0.46),
+    0 2px 0 rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px var(--cv2-edge),
+    inset 0 0 0 2px var(--cv2-edge-hi),
+    inset 0 0 34px rgba(24, 18, 10, 0.42),
+    inset 0 1px 0 rgba(255, 253, 246, 0.34);
+  will-change: transform;
+}
+
+/* 做旧：四角深、中央亮，叠一层不均匀的霉斑/擦痕 + 课桌刻痕 */
+.cv2-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background-image:
+    radial-gradient(42% 30% at 16% 88%, rgba(24, 18, 10, 0.2), transparent 70%),
+    radial-gradient(36% 26% at 86% 12%, rgba(24, 18, 10, 0.17), transparent 72%),
+    radial-gradient(22% 18% at 62% 54%, rgba(255, 255, 255, 0.07), transparent 70%),
+    /* 课桌刻痕：两道斜刻线，只有 0.5px 宽 */
+    linear-gradient(74deg, transparent 47.6%, rgba(35, 50, 79, 0.14) 47.6% 48.2%, transparent 48.2%),
+    linear-gradient(-58deg, transparent 71.6%, rgba(35, 50, 79, 0.1) 71.6% 72.1%, transparent 72.1%);
+  box-shadow:
+    inset 0 0 26px rgba(24, 18, 10, 0.4),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.28);
+  mix-blend-mode: multiply;
+}
+
+/* 折角：右上角被翻起的一小块硬卡纸（纯 clip-path + 渐变，无位图） */
+.cv2-fold {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 7;
+  width: var(--cv2-fold);
+  height: var(--cv2-fold);
+  pointer-events: none;
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  background: linear-gradient(226deg, var(--cv2-edge-hi) 0%, var(--cv2-surface) 46%, var(--cv2-edge) 100%);
+  filter: drop-shadow(-1.5px 1.5px 1.5px rgba(0, 0, 0, 0.55));
+}
+/* 折痕上的那一道阴影 */
+.cv2-fold::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(100% 0, 100% 100%, 22% 100%);
+  background: linear-gradient(226deg, transparent 40%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+/* ---- 代价标记：作业本格数（左上角，压住卡框） ---- */
+.cv2-cost {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 5px;
+  border-radius: 3px;
+  background: linear-gradient(170deg, rgba(255, 253, 246, 0.86), rgba(214, 202, 178, 0.78));
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.42),
+    inset 0 0 0 1px rgba(35, 50, 79, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+}
+.cv2-cost > i {
+  display: block;
+  width: var(--cv2-cost-cell);
+  height: var(--cv2-cost-cell);
+  border-radius: 1px;
+  background: rgba(255, 253, 246, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(35, 50, 79, 0.55);
+}
+/* 每一格都错开一点点角度，像手画的 */
+.cv2-cost > i:nth-child(1) { transform: rotate(-1.4deg); }
+.cv2-cost > i:nth-child(2) { transform: rotate(1.2deg); }
+.cv2-cost > i:nth-child(3) { transform: rotate(-0.6deg); }
+/* 已支付的格数：粉笔压过的实心格。0 精力时三格全空，本身就是“免费”的信号 */
+.cv2-cost[data-cost="1"] > i:first-child,
+.cv2-cost[data-cost="2"] > i:nth-child(-n + 2),
+.cv2-cost[data-cost="3"] > i {
+  background: linear-gradient(180deg, #FFFDF6, #E4DAC4);
+  box-shadow:
+    inset 0 0 0 1.5px var(--cv2-ink),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* ---- 名字条：木刻/硬纸压印的一条横匾 ---- */
+.cv2-band {
+  order: 1;
+  flex: 0 0 auto;
+  height: 30px;
+  padding: 0 6px 0 48px;
+  border: 0;
+  border-bottom: 1px solid rgba(24, 18, 10, 0.45);
+  background-image:
+    repeating-linear-gradient(112deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 6px),
+    linear-gradient(178deg, color-mix(in srgb, var(--cv2-type) 30%, var(--cv2-edge)) 0%,
+                            color-mix(in srgb, var(--cv2-type) 14%, var(--cv2-edge)) 100%);
+  color: var(--chalk, #EAF2F8);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.35);
+}
+.cv2-band .icon-mask { background: currentColor; }
+.cv2-band .card__cost {
+  margin-left: auto;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+  padding: 0 5px;
+  font-size: 10px;
+}
+
+.cv2-name {
+  order: 2;
+  flex: 0 0 auto;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  padding: 0 7px;
+  font-family: var(--font-display, sans-serif);
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--cv2-scribe) 78%, var(--cv2-ink));
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.28);
+  border-bottom: 1px dashed rgba(35, 50, 79, 0.32);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cv2-card--codex .cv2-name { height: 30px; font-size: 19px; }
+
+/* ---- 插画区：四角小倒角，像贴进卡框里的照片 ---- */
+.cv2-art {
+  order: 3;
+  flex: 0 0 auto;
+  position: relative;
+  height: 108px;
+  margin: 5px 6px 0;
+  border: 0;
+  border-radius: 2px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  background-image:
+    radial-gradient(74% 62% at 50% 44%, rgba(255, 255, 255, 0.09), transparent 72%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.16)),
+    linear-gradient(168deg, color-mix(in srgb, var(--cv2-type) 22%, #4A4235),
+                            color-mix(in srgb, var(--cv2-type) 8%, #2A2620));
+  box-shadow:
+    inset 0 0 0 1px rgba(24, 18, 10, 0.66),
+    inset 0 0 22px rgba(0, 0, 0, 0.5);
+}
+.cv2-card--codex .cv2-art { height: 132px; }
+.cv2-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: saturate(0.92) contrast(1.05);
+}
+/* 插画上压一层极淡的粉笔灰，避免和卡面脱开 */
+.cv2-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1.4px 1.4px at 22% 30%, rgba(255, 255, 255, 0.16) 50%, transparent 51%),
+    radial-gradient(1.1px 1.1px at 74% 62%, rgba(255, 255, 255, 0.13) 50%, transparent 51%),
+    radial-gradient(1.6px 1.6px at 44% 82%, rgba(255, 255, 255, 0.1) 50%, transparent 51%);
+  opacity: 0.9;
+}
+
+/* ---- 效果文本：压在纸上的油印字，底色是格线 ---- */
+.cv2-text {
+  order: 4;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 4px 8px 2px;
+  font-family: var(--font-body, sans-serif);
+  font-size: 12.5px;
+  line-height: 1.34;
+  color: color-mix(in srgb, var(--cv2-ink) 88%, var(--cv2-scribe));
+  overflow: hidden;
+  background-image: repeating-linear-gradient(180deg,
+    transparent 0 15.4px, rgba(35, 50, 79, 0.13) 15.4px 16.4px);
+}
+.cv2-card--codex .cv2-text { font-size: 14px; line-height: 1.38; }
+
+/* ---- 印记行：一枚枚盖章 / 贴纸 ---- */
+.cv2-imprints {
+  order: 5;
+  flex: 0 0 auto;
+  display: flex;
+  gap: 3px;
+  padding: 1px 7px 3px;
+  min-height: 20px;
+  overflow: hidden;
+}
+.cv2-imprint {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 10px;
+  line-height: 1.5;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--cv2-type) 30%, var(--cv2-ink));
+  background: color-mix(in srgb, var(--cv2-type) 16%, rgba(255, 253, 246, 0.5));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--cv2-type) 46%, rgba(24, 18, 10, 0.4)),
+    0 0 0 2px rgba(255, 253, 246, 0.16);
+  transform: rotate(-0.8deg);
+  white-space: nowrap;
+}
+.cv2-imprint:nth-child(even) { transform: rotate(0.9deg); }
+.cv2-imprint--bad {
+  color: #7A2A24;
+  background: rgba(228, 87, 76, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(122, 42, 36, 0.5), 0 0 0 2px rgba(255, 253, 246, 0.14);
+  border: 1px dashed rgba(122, 42, 36, 0.4);
+}
+
+/* ---- 稀有度 / 类型角标：右下角的小方章 ---- */
+.cv2-seal {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  z-index: 6;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 2px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255, 253, 246, 0.92);
+  background: linear-gradient(168deg, rgba(24, 18, 10, 0.34), rgba(24, 18, 10, 0.6));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 253, 246, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.4);
+  transform: rotate(-6deg);
+}
+.cv2-seal::before { content: "•"; font-size: 14px; }
+.cv2-card--rare .cv2-seal::before { content: "★"; color: var(--blue, #3D7BD9); }
+.cv2-card--epic .cv2-seal::before { content: "★"; color: #D9C6FF; }
+.cv2-card--ult .cv2-seal::before { content: "✦"; color: var(--yellow, #F7C948); }
+
+/* ---- 气势需求：右侧边缘一枚圆形粉笔章（和左上“方格子”明显区分） ---- */
+.card__momentum.cv2-momentum {
+  position: absolute;
+  top: 88px;
+  right: 6px;
+  z-index: 8;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--yellow, #F7C948);
+  background: radial-gradient(60% 60% at 50% 40%, rgba(247, 201, 72, 0.26), rgba(24, 18, 10, 0.5));
+  box-shadow:
+    inset 0 0 0 1.5px rgba(247, 201, 72, 0.85),
+    0 0 10px rgba(247, 201, 72, 0.35),
+    0 1px 4px rgba(0, 0, 0, 0.45);
+  transform: rotate(-8deg);
+}
+.cv2-momentum::before { content: "气"; font-size: 9px; position: absolute; top: 2px; opacity: 0.8; }
+.cv2-momentum b { margin-top: 6px; }
+
+/* ---- 尺寸：手牌 168×222 / 图鉴 208×292（比例 0.7565 / 0.7123） ---- */
+.cv2-card--hand {
+  --cv2-fold: 20px;
+  --cv2-cost-cell: 7px;
+  width: var(--hand-card-w, 168px);
+  height: var(--hand-card-h, 222px);
+}
+.cv2-card--codex {
+  --cv2-fold: 26px;
+  --cv2-cost-cell: 9px;
+  width: 208px;
+  height: 292px;
+}
+.cv2-card--codex .cv2-band { height: 34px; padding-left: 54px; }
+.cv2-card--codex .cv2-seal { width: 24px; height: 24px; font-size: 13px; }
+.cv2-card--codex .cv2-cost { padding: 4px 6px; }
+.cv2-card--codex .cv2-imprint { font-size: 11px; }
+/* 战场展示用的小卡：104×142，纹理复用同一套，只是把分区压扁 */
+.cv2-card--mini { --cv2-fold: 14px; --cv2-cost-cell: 5px; width: 104px; height: 142px; }
+.cv2-card--mini .cv2-band { height: 20px; padding: 0 4px 0 30px; font-size: 10px; }
+.cv2-card--mini .cv2-name { height: 18px; font-size: 12px; padding: 0 5px; }
+.cv2-card--mini .cv2-art { height: 64px; margin: 3px 4px 0; }
+.cv2-card--mini .cv2-text { display: none; }
+.cv2-card--mini .cv2-imprints { min-height: 14px; padding: 0 5px 2px; }
+.cv2-card--mini .cv2-imprint { font-size: 9px; padding: 0 3px; }
+.cv2-card--mini .cv2-seal { width: 15px; height: 15px; font-size: 9px; right: 4px; bottom: 4px; }
+.cv2-card--mini .cv2-momentum { top: 52px; right: 4px; width: 18px; height: 18px; font-size: 10px; }
+
+/* 稀有度：不换底，只加深压边与一道冷/暖光 */
+.cv2-card--rare { box-shadow: 0 14px 26px rgba(0, 0, 0, 0.46), inset 0 0 0 1.5px var(--blue, #3D7BD9), inset 0 0 26px rgba(61, 123, 217, 0.22), inset 0 0 34px rgba(24, 18, 10, 0.4); }
+.cv2-card--epic { box-shadow: 0 16px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1.5px var(--purple, #7A5AD1), inset 0 0 30px rgba(122, 90, 209, 0.28), inset 0 0 34px rgba(24, 18, 10, 0.4); }
+.cv2-card--ult {
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.55), inset 0 0 0 2px var(--yellow, #F7C948), inset 0 0 40px rgba(247, 201, 72, 0.26), inset 0 0 34px rgba(24, 18, 10, 0.4), 0 0 22px rgba(247, 201, 72, 0.35);
+  background-image:
+    repeating-linear-gradient(58deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 5px),
+    repeating-conic-gradient(from 12deg at 50% 50%, var(--cv2-grain) 0% 25%, transparent 0% 50%),
+    radial-gradient(130% 100% at 22% 0%, rgba(255, 231, 168, 0.2), transparent 58%),
+    linear-gradient(166deg, color-mix(in srgb, var(--cv2-surface) 86%, #C9A15A),
+                            color-mix(in srgb, var(--cv2-surface-deep) 84%, #7A5A22));
+  background-size: auto, 3px 3px, auto, auto;
+}
+.cv2-card--ult .cv2-band { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -3px 8px rgba(0, 0, 0, 0.3), 0 0 14px rgba(247, 201, 72, 0.3); }
+
+/* 出不了牌：整张压暗去色，并用“红笔批注”替代旧的便利贴横条 */
+.cv2-card.is-unplayable { filter: grayscale(0.5) brightness(0.82); }
+.hand .cv2-card.is-unplayable::before {
+  content: attr(data-reason);
+  position: absolute;
+  z-index: 9;
+  inset: auto 4px 38% 4px;
+  padding: 2px 6px;
+  text-align: center;
+  font-family: var(--font-display, sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #8E2620;
+  background: rgba(255, 253, 246, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(142, 38, 32, 0.5);
+  transform: rotate(-2.2deg);
+  mix-blend-mode: multiply;
+}
+.hand .cv2-card:hover,
+.hand .cv2-card:focus-visible {
+  box-shadow:
+    0 22px 38px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px var(--cv2-edge),
+    inset 0 0 0 2px var(--cv2-edge-hi),
+    inset 0 0 34px rgba(24, 18, 10, 0.42),
+    0 0 0 2px color-mix(in srgb, var(--cv2-type) 60%, transparent);
+}
+
+/* ============================================================================
+   2. 状态类：出牌演出的三段
+   ============================================================================ */
+
+/* 第一段：手牌抬起（“手指点下”→ 牌被拎离桌面） */
+.cv2-play-enter {
+  animation: cv2-lift 200ms var(--ease-slam) both;
+  z-index: 40;
+}
+
+/* 第二段：飞向战场（带弧线与缩放，终点朝战场方向） */
+.cv2-play-fly {
+  animation: cv2-flight 380ms var(--cv2-ease-slam) both;
+  z-index: 45;
+  pointer-events: none;
+}
+.cv2-play-enter.cv2-play-fly { animation: cv2-lift 180ms var(--cv2-ease-slam) both, cv2-flight 360ms var(--cv2-ease-slam) 180ms both; }
+
+/* 第三段：砸落 + 回弹（战场卡）。落位微震是“旁边的东西在晃”，
+   所以 .cv2-rumble 只挂战场 / 手牌容器，不和 slam 挤在同一元素上，
+   否则两条动画会抢同一个 transform。 */
+.cv2-play-slam {
+  animation: cv2-slam var(--cv2-play) var(--cv2-ease-slam) both;
+}
+
+/* 尘屑：放在落点，先亮相再被压平 */
+.cv2-dust {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  width: 96px;
+  height: 54px;
+  margin-left: -48px;
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0;
+  background-image:
+    radial-gradient(2.4px 2.4px at 16% 62%, rgba(255, 253, 246, 0.85) 50%, transparent 51%),
+    radial-gradient(1.6px 1.6px at 34% 40%, rgba(255, 253, 246, 0.7) 50%, transparent 51%),
+    radial-gradient(2.8px 2.8px at 52% 68%, rgba(255, 253, 246, 0.62) 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 68% 46%, rgba(255, 253, 246, 0.75) 50%, transparent 51%),
+    radial-gradient(2.2px 2.2px at 84% 66%, rgba(255, 253, 246, 0.6) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 26% 78%, rgba(255, 253, 246, 0.5) 50%, transparent 51%),
+    radial-gradient(1.8px 1.8px at 76% 80%, rgba(255, 253, 246, 0.45) 50%, transparent 51%),
+    radial-gradient(2px 2px at 46% 24%, rgba(255, 253, 246, 0.4) 50%, transparent 51%),
+    radial-gradient(46% 26% at 50% 62%, rgba(255, 253, 246, 0.22), transparent 72%),
+    radial-gradient(56% 32% at 50% 78%, rgba(0, 0, 0, 0.32), transparent 76%);
+  animation: cv2-dust-burst 900ms var(--ease-out, cubic-bezier(0.22, 0.9, 0.25, 1)) both;
+}
+/* 上方还要飘一层更细的粉笔灰 */
+.cv2-dust::before {
+  content: "";
+  position: absolute;
+  inset: -18px 0 0;
+  background-image:
+    radial-gradient(1px 1px at 22% 40%, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
+    radial-gradient(1.3px 1.3px at 58% 22%, rgba(255, 255, 255, 0.55) 50%, transparent 51%),
+    radial-gradient(1px 1px at 82% 52%, rgba(255, 255, 255, 0.5) 50%, transparent 51%);
+  animation: cv2-dust-drift 1200ms 100ms var(--ease-soft, cubic-bezier(0.4, 0, 0.2, 1)) both;
+}
+
+/* 压痕残留：在战场上留一小会儿再散掉 */
+.cv2-residue {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 84px;
+  height: 20px;
+  margin-left: -42px;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: 50%;
+  background:
+    radial-gradient(58% 60% at 50% 50%, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.16) 62%, transparent 76%),
+    repeating-linear-gradient(72deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 4px);
+  box-shadow:
+    inset 0 -2px 4px rgba(0, 0, 0, 0.42),
+    0 1px 0 rgba(255, 253, 246, 0.07);
+  animation: cv2-imprint 2400ms var(--ease-soft, cubic-bezier(0.4, 0, 0.2, 1)) both;
+}
+
+/* 落位微震：相邻区域（战场 / 手牌 / 日志）跟着晃一下 */
+.cv2-rumble { animation: cv2-rumble 720ms var(--cv2-ease-slam) both; }
+/* 命中瞬间压一层极短的暗，强化“重” */
+.cv2-impact { animation: cv2-impact 120ms var(--ease-out, cubic-bezier(0.22, 0.9, 0.25, 1)) both; }
+
+/* 受击抖动（战场卡被打击时） */
+.cv2-hit { animation: cv2-hit 280ms var(--cv2-ease-slam) both; }
+/* 治疗脉动 */
+.cv2-heal { animation: cv2-heal 620ms var(--ease-pop, cubic-bezier(0.34, 1.56, 0.64, 1)) both; }
+/* 印记盖章 */
+.cv2-stamp { animation: cv2-stamp 420ms var(--ease-pop, cubic-bezier(0.34, 1.56, 0.64, 1)) both; }
+
+/* ============================================================================
+   3. 卡型差异：打击 / 套路 / 助攻 / 大招
+   ============================================================================ */
+
+/* 打击：默认最重的一档，短促、尘土最多 */
+.cv2-play-slam.cv2-play--attack { --cv2-flight-y: -118px; --cv2-flight-rot: -8deg; --cv2-flight-scale: 1.2; --cv2-play: 300ms; }
+/* 套路：抛得更高、转一点角度，落位一次“甩”的感觉 */
+.cv2-play-slam.cv2-play--tactic { --cv2-flight-y: -134px; --cv2-flight-rot: 10deg; --cv2-flight-scale: 1.24; --cv2-play: 320ms; }
+.cv2-play-slam.cv2-play--tactic .cv2-fold { box-shadow: 0 0 12px rgba(91, 170, 224, 0.4); }
+/* 助攻：轻快、短促，落位带一圈柔光 */
+.cv2-play-slam.cv2-play--support { --cv2-flight-y: -88px; --cv2-flight-rot: -4deg; --cv2-flight-scale: 1.12; --cv2-play: 240ms; }
+.cv2-dust--support { animation-duration: 700ms; }
+.cv2-dust--support::before { animation-duration: 820ms; }
+/* 大招：更慢更重，全屏暗角 + 仪式感；::before 是卡面自己的金光层，所以要有定位 */
+.cv2-play--ult {
+  position: relative;
+  --cv2-flight-y: -190px;
+  --cv2-flight-rot: -3deg;
+  --cv2-flight-scale: 1.5;
+  --cv2-play: 460ms;
+  --cv2-ease-slam: cubic-bezier(0.16, 0.84, 0.24, 1);
+}
+.cv2-dust--ult { animation-duration: 1500ms; }
+.cv2-dust--ult::before { animation-duration: 1800ms; }
+.cv2-play-ceremony { animation: cv2-slam 460ms var(--cv2-ease-slam) both; }
+/* 全屏暗角 + 两侧压暗：挂在 body 上，不遮交互 */
+.cv2-ult-ceremony::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 64;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 52%, transparent 34%, rgba(10, 8, 6, 0.62) 78%, rgba(10, 8, 6, 0.86) 100%),
+    repeating-linear-gradient(96deg, rgba(255, 255, 255, 0.028) 0 2px, transparent 2px 7px);
+  animation: cv2-vignette 1200ms var(--ease-soft, cubic-bezier(0.4, 0, 0.2, 1)) both;
+}
+body.cv2-ult-ceremony .board { animation: cv2-screen-shake 620ms 180ms var(--cv2-ease-slam) both; }
+body.cv2-ult-ceremony .cv2-play-ceremony::after {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(46% 40% at 50% 46%, rgba(247, 201, 72, 0.34), transparent 72%);
+  animation: cv2-ceremony-glow 1200ms var(--ease-soft, cubic-bezier(0.4, 0, 0.2, 1)) both;
+}
+
+/* 快进模式：整段压到 1/3，保留形变但不拖节奏 */
+.fast-mode .cv2-play-enter,
+.fast-mode .cv2-play-fly,
+.fast-mode .cv2-play-slam,
+.fast-mode .cv2-play-ceremony,
+.fast-mode .cv2-dust,
+.fast-mode .cv2-dust::before,
+.fast-mode .cv2-residue,
+.fast-mode .cv2-rumble,
+.fast-mode .cv2-hit { animation-duration: 120ms !important; animation-delay: 0ms !important; }
+
+/* ============================================================================
+   4. @keyframes
+   ============================================================================ */
+
+/* 手牌抬起：被手指拎起来，底部阴影先散开 */
+@keyframes cv2-lift {
+  0% { transform: translateY(0) scale(1) rotate(var(--fan, 0deg)); filter: brightness(1); }
+  100% { transform: translateY(-34px) scale(1.06) rotate(0deg); filter: brightness(1.08); }
+}
+
+/* 飞向战场：先升后落的弧线 + 微 3D 翻转 */
+@keyframes cv2-flight {
+  0% {
+    transform: translate3d(0, -34px, 0) rotate(0deg) scale(1.06);
+    opacity: 1;
+    filter: drop-shadow(0 16px 22px rgba(0, 0, 0, 0.3));
+  }
+  26% {
+    transform: translate3d(26px, var(--cv2-flight-y, -118px), 0) rotate(calc(var(--cv2-flight-rot, -8deg) * -1)) scale(var(--cv2-flight-scale, 1.2));
+    filter: drop-shadow(0 34px 30px rgba(0, 0, 0, 0.16));
+  }
+  66% {
+    transform: translate3d(-14px, calc(var(--cv2-flight-y, -118px) * 0.42), 0) rotate(calc(var(--cv2-flight-rot, -8deg) * 0.4)) rotateY(14deg) scale(calc(var(--cv2-flight-scale, 1.2) * 0.94));
+    opacity: 0.98;
+  }
+  100% {
+    transform: translate3d(0, 6px, 0) rotate(0deg) rotateY(0deg) scale(1.04);
+    opacity: 0.92;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.42));
+  }
+}
+
+/* 砸落：Y 方向压缩、X 方向撑开的 squash，再回弹、再定住 */
+@keyframes cv2-slam {
+  0% {
+    transform: translateY(-52px) scaleX(1.1) scaleY(1.16) rotate(-2.4deg);
+    opacity: 0.94;
+    filter: brightness(1.06);
+  }
+  30% {
+    transform: translateY(0) scaleX(1.17) scaleY(0.82) rotate(0.6deg);
+    opacity: 1;
+    filter: brightness(1.2) contrast(1.08);
+  }
+  52% {
+    transform: translateY(-9px) scaleX(0.965) scaleY(1.07) rotate(-0.5deg);
+    filter: brightness(1.03);
+  }
+  72% {
+    transform: translateY(0) scaleX(1.045) scaleY(0.972) rotate(0.2deg);
+  }
+  86% {
+    transform: translateY(-2.5px) scaleX(0.992) scaleY(1.012) rotate(0deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+/* 尘屑迸发：先炸开横向铺，再整体下沉、拉淡 */
+@keyframes cv2-dust-burst {
+  0% { opacity: 0; transform: scale(0.42, 0.5) translateY(6px); }
+  18% { opacity: 0.95; transform: scale(1.02, 1.18) translateY(0); }
+  46% { opacity: 0.6; transform: scale(1.3, 0.9) translateY(3px); }
+  100% { opacity: 0; transform: scale(1.46, 0.62) translateY(8px); }
+}
+
+/* 上方细灰：慢慢往上飘再消失 */
+@keyframes cv2-dust-drift {
+  0% { opacity: 0; transform: translateY(8px) scale(0.9); }
+  30% { opacity: 0.75; }
+  100% { opacity: 0; transform: translateY(-16px) scale(1.15); }
+}
+
+/* 压痕：拍下去 → 变浅 → 留一小会儿 → 散掉 */
+@keyframes cv2-imprint {
+  0% { opacity: 0; transform: scale(0.6, 0.42); }
+  6% { opacity: 0.92; transform: scale(1, 1); }
+  26% { opacity: 0.62; transform: scale(1.03, 0.96); }
+  72% { opacity: 0.42; transform: scale(1.01, 0.94); }
+  100% { opacity: 0; transform: scale(1.07, 0.88); }
+}
+
+/* 落位微震：相邻区域晃两下就停 */
+@keyframes cv2-rumble {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  4% { transform: translate3d(0, 4px, 0) rotate(0.14deg); }
+  10% { transform: translate3d(0, -2.5px, 0) rotate(-0.1deg); }
+  18%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+
+/* 命中压暗 */
+@keyframes cv2-impact {
+  0% { filter: brightness(1); }
+  40% { filter: brightness(0.82) contrast(1.1); }
+  100% { filter: brightness(1); }
+}
+
+/* 受击：竖向被压一下再弹回，红色压边闪一次 */
+@keyframes cv2-hit {
+  0% { transform: translateX(0) rotate(0deg) scale(1); filter: none; }
+  18% { transform: translateX(-5px) rotate(-2.4deg) scale(0.96, 1.03); filter: brightness(1.12) saturate(1.3); }
+  42% { transform: translateX(5px) rotate(2deg) scale(1.02, 0.98); }
+  68% { transform: translateX(-3px) rotate(-0.8deg) scale(1); }
+  100% { transform: translateX(0) rotate(0deg) scale(1); filter: none; }
+}
+
+/* 治疗：往上浮一下，绿色透光一下 */
+@keyframes cv2-heal {
+  0% { transform: translateY(0) scale(1); filter: none; }
+  34% { transform: translateY(-7px) scale(1.035); filter: brightness(1.16) saturate(1.2); }
+  100% { transform: translateY(0) scale(1); filter: none; }
+}
+
+/* 印记盖章：从高处拍下来，落定后微颤 */
+@keyframes cv2-stamp {
+  0% { transform: scale(1.75) rotate(-14deg); opacity: 0; }
+  34% { transform: scale(1) rotate(-1.5deg); opacity: 1; }
+  48% { transform: scale(0.94) rotate(0.8deg); }
+  62% { transform: scale(1.02) rotate(-0.6deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* 大招全屏暗角：压下来 → 稳住 → 提起来 */
+@keyframes cv2-vignette {
+  0% { opacity: 0; }
+  16% { opacity: 1; }
+  68% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+/* 大招落位金光 */
+@keyframes cv2-ceremony-glow {
+  0% { opacity: 0; transform: scale(0.7); }
+  24% { opacity: 0.9; transform: scale(1); }
+  70% { opacity: 0.5; }
+  100% { opacity: 0; transform: scale(1.24); }
+}
+
+/* 大招震屏：位移逐段减半 */
+@keyframes cv2-screen-shake {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  8% { transform: translate3d(-7px, 4px, 0) rotate(-0.4deg); }
+  20% { transform: translate3d(6px, -3px, 0) rotate(0.35deg); }
+  34% { transform: translate3d(-4px, 3px, 0) rotate(-0.24deg); }
+  52% { transform: translate3d(3px, -2px, 0) rotate(0.16deg); }
+  74% { transform: translate3d(-1.5px, 1px, 0) rotate(0deg); }
+}
+
+/* ============================================================================
+   5. 降级：没 filter / mix-blend-mode 的老机器照样能读能玩
+   ============================================================================ */
+
+/* 不支持 mix-blend-mode 时，把 ::after 的做旧层降为普通叠加，不要变成一块黑 */
+@supports not (mix-blend-mode: multiply) {
+  .cv2-card::after { mix-blend-mode: normal; opacity: 0.5; }
+}
+/* 不支持 color-mix 时退回纯令牌色（macOS 13 / Chrome 110 以下） */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  .cv2-card {
+    background-image:
+      repeating-linear-gradient(58deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 5px),
+      repeating-conic-gradient(from 12deg at 50% 50%, var(--cv2-grain) 0% 25%, transparent 0% 50%),
+      linear-gradient(166deg, var(--paper, #FBF7EC) 0%, #D8CDB4 100%);
+    background-size: auto, 3px 3px, auto;
+  }
+  .cv2-band { background-image: linear-gradient(178deg, var(--cv2-type), rgba(24, 18, 10, 0.72)); }
+  .cv2-cost > i { background: rgba(255, 253, 246, 0.55); }
+  .cv2-cost[data-cost="1"] > i:first-child,
+  .cv2-cost[data-cost="2"] > i:nth-child(-n + 2),
+  .cv2-cost[data-cost="3"] > i { background: #FFFDF6; }
+  .cv2-name { color: var(--cv2-ink); }
+  .cv2-imprint { color: var(--cv2-ink); background: rgba(255, 253, 246, 0.5); }
+}
+/* 不支持 clip-path 时：折角改成方角小三角块，插画恢复圆角 */
+@supports not (clip-path: polygon(0 0, 100% 0, 0 100%)) {
+  .cv2-fold { clip-path: none; border-radius: 0 0 0 4px; }
+  .cv2-art { clip-path: none; border-radius: 3px; }
+}
+/* 没有 filter 的老引擎（旧 Edge / 老安卓 WebView）：去掉靠滤镜撑起来的高光，改用描边和阴影 */
+@supports not (filter: brightness(1)) {
+  .cv2-art img { filter: none; }
+  .cv2-fold { filter: none; box-shadow: -1px 1px 2px rgba(0, 0, 0, 0.5); }
+  .cv2-seal { box-shadow: inset 0 0 0 1px rgba(255, 253, 246, 0.5); }
+  .cv2-cost { box-shadow: inset 0 0 0 1px rgba(35, 50, 79, 0.55), 0 1px 3px rgba(0, 0, 0, 0.4); }
+}
+/* 触屏/老设备（无 hover 且交互反馈慢）：整块做旧层不渲染，演出退成 140ms 的抬起与淡入 */
+@media (hover: none) {
+  .cv2-card::after { display: none; }
+  .cv2-card { box-shadow: 0 8px 16px rgba(0, 0, 0, 0.42), inset 0 0 0 1px var(--cv2-edge), inset 0 1px 0 rgba(255, 253, 246, 0.3); }
+}
+/* JS 判定为低端机时给 <html> 加 .cv2-lite：颗粒层、做旧层、尘屑、折角阴影全部省掉 */
+.cv2-lite .cv2-card::after,
+.cv2-lite .cv2-dust::before,
+.cv2-lite .cv2-art::after { display: none; }
+.cv2-lite .cv2-card {
+  background-image: linear-gradient(166deg, var(--paper, #FBF7EC) 0%, #D8CDB4 100%);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4), inset 0 0 0 1px var(--cv2-edge);
+}
+.cv2-lite .cv2-fold { filter: none; }
+.cv2-lite .cv2-dust { background-image: radial-gradient(46% 26% at 50% 62%, rgba(255, 253, 246, 0.28), transparent 72%); }
+.cv2-lite .cv2-play-fly { animation: cv2-quiet 120ms linear both; }
+.cv2-lite .cv2-play-slam { animation: cv2-lite-slam 140ms var(--cv2-ease-slam) both; }
+.cv2-lite .cv2-rumble,
+.cv2-lite .cv2-impact,
+.cv2-lite .cv2-heal,
+.cv2-lite .cv2-stamp { animation: cv2-quiet 120ms linear both; }
+
+@keyframes cv2-lite-slam {
+  0% { transform: translateY(-16px) scale(0.985); opacity: 0.5; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* 减少动态：不飞、不弹、不震。只留 90ms 的透明度和一点缩放 */
+@media (prefers-reduced-motion: reduce) {
+  .cv2-play-enter,
+  .cv2-play-fly,
+  .cv2-play-enter.cv2-play-fly { animation: cv2-quiet 90ms linear both; }
+  .cv2-play-slam,
+  .cv2-play-ceremony,
+  .cv2-hit,
+  .cv2-heal { animation: cv2-quiet 90ms linear both; }
+  .cv2-dust,
+  .cv2-dust::before { animation: cv2-quiet 120ms linear both; }
+  .cv2-residue { animation: cv2-imprint-quiet 1400ms linear both; }
+  .cv2-rumble,
+  .cv2-impact,
+  body.cv2-ult-ceremony .board { animation: none; }
+  .cv2-ult-ceremony::before { animation: cv2-quiet 260ms linear both; }
+  body.cv2-ult-ceremony .cv2-play-ceremony::after { animation: cv2-quiet 260ms linear both; }
+  .cv2-stamp { animation: cv2-quiet 90ms linear both; }
+  /* 静态提示保留：压痕仍然出现，只是不扩散 */
+  .cv2-dust { opacity: 0.35 !important; transform: none !important; }
+}
+
+@keyframes cv2-quiet {
+  from { opacity: 0; transform: scale(0.985); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes cv2-imprint-quiet {
+  0% { opacity: 0.7; transform: none; }
+  100% { opacity: 0; transform: none; }
+}

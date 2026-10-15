@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <!-- ============================================================
+       开发版入口（外链源码，方便改代码）：
+         用任意静态服务器打开本文件即可，例如 npx serve .
+       给玩家/上传用的成品在仓库根目录 index.html，
+       由 node tools/build.js 从本文件打包生成。
+       ============================================================ -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#22362F" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>八班风云 · 课间对决</title>
+  <meta name="description" content="八班风云：一款校园题材的原创卡牌对决网页游戏。选一位同学，用他/她的绝活卡池打一场课间对决。" />
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiIgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByb2xlPSJpbWciIGFyaWEtbGFiZWxsZWRieT0idCI+CiAgPHRpdGxlIGlkPSJ0Ij7nsonnrJQ8L3RpdGxlPgogIDxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iY3VycmVudENvbG9yIiBzdHJva2Utd2lkdGg9IjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+CiAgICA8cGF0aCBkPSJNMjYgNzAgTDY0IDIwIEg4MCBWMzYgTDQyIDg2IEgyNiBaIi8+CiAgICA8cGF0aCBkPSJNNTQgMzIgTDcwIDQ4Ii8+CiAgICA8cGF0aCBkPSJNMjYgNzAgTDQyIDg2Ii8+CiAgPC9nPgo8L3N2Zz4K" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/cards.css" />
+  <link rel="stylesheet" href="styles/card-v2.css" />
+  <link rel="stylesheet" href="styles/animations.css" />
+  <link rel="stylesheet" href="styles/screens.css" />
+  <link rel="stylesheet" href="styles/modes.css" />
+</head>
+<body>
+  <div class="chalk-dust" aria-hidden="true"></div>
+
+  <!-- ============================ 开始 / 选人界面 ============================ -->
+  <section id="screen-start" class="screen screen--active">
+    <div class="start-bg" aria-hidden="true"></div>
+    <header class="start-head">
+      <img class="logo" src="art/ui/logo.svg" alt="八班风云" />
+      <p class="start-sub">八班课间十分钟 · 一场关于成绩与面子的对决</p>
+      <div class="rules-strip" id="rules-strip">
+        <span class="rules-chip">成绩 <b>10</b> 起步 · 冲到 <b>20</b> 直接赢</span>
+        <span class="rules-chip">被压到 <b>0</b> 就当场退学（输）</span>
+        <span class="rules-chip">每回合 <b>精力</b> 回满 · <b>气势</b> 攒着放大招</span>
+      </div>
+    </header>
+
+    <!-- 模式选择：教程 / 剧情 / 无尽 -->
+    <section class="modes" id="modes">
+      <h2 class="modes-title">先选个玩法</h2>
+      <div class="modes-grid" id="modes-grid"></div>
+    </section>
+
+    <div class="select-panel" id="select-panel">
+      <div class="select-side">
+        <h2 class="select-title">① 你是哪位同学？</h2>
+        <div class="char-grid" id="char-grid"></div>
+      </div>
+      <div class="select-side">
+        <h2 class="select-title" id="rival-title">② 谁来跟你过招？</h2>
+        <div class="char-grid char-grid--small" id="rival-grid"></div>
+        <div class="options">
+          <label class="opt" id="difficulty-opt">
+            <span>难度</span>
+            <select id="difficulty">
+              <option value="easy">摸鱼模式（对面放水）</option>
+              <option value="normal" selected>正常课间（推荐）</option>
+              <option value="hard">卷王模式（对面很凶）</option>
+            </select>
+          </label>
+          <label class="opt opt--row">
+            <input type="checkbox" id="sound-toggle" checked />
+            <span>开启音效</span>
+          </label>
+          <label class="opt opt--row">
+            <input type="checkbox" id="fast-toggle" />
+            <span>快进动画</span>
+          </label>
+        </div>
+        <button id="start-btn" class="btn btn--primary btn--big" disabled>上课铃响，开始对决</button>
+        <p class="hint" id="start-hint">先选一位同学，再选对手。</p>
+      </div>
+    </div>
+
+    <details class="how-to">
+      <summary>怎么玩？（30 秒看懂）</summary>
+      <ol>
+        <li><b>成绩</b>既是血条也是进度条：涨到 20 你直接赢，掉到 0 你直接输。所以既能"卷赢"，也能被打崩。</li>
+        <li>每回合系统发牌，<b>精力</b>决定你这回合能出几张牌（打完就等下一节课）。</li>
+        <li><b>气势</b>每回合 +1，攒够 3 点就能放角色专属<b>大招</b>（一局只能用一次，别浪费）。</li>
+        <li>卡牌分四类：打击（扣对面成绩）、套路（搞事）、助攻（自保/抽牌）、大招（翻盘）。</li>
+        <li>四位同学各有一套 <b>18 张专属牌</b> + 12 张公共牌，牌堆不一样，打法完全不一样。</li>
+      </ol>
+    </details>
+
+    <!-- 剧情模式：关卡列表 -->
+    <section class="stages" id="stages" hidden>
+      <div class="stages-head">
+        <h2 class="codex-title">剧情模式 · 选一关<span class="codex-sub">通关后自动解锁下一关，进度存在本机</span></h2>
+        <button class="btn btn--ghost" id="btn-stages-back" type="button">← 回到模式选择</button>
+      </div>
+      <div class="stages-grid" id="stages-grid"></div>
+    </section>
+
+    <!-- 卡池图鉴：选人前就能把 90 张牌全部看一遍（卡面按真实尺寸展示） -->
+    <section class="codex" id="codex">
+      <h2 class="codex-title">③ 先看看谁的牌好用？<span class="codex-sub">点角色名切换 · 卡面上的说明就是真实结算规则</span></h2>
+      <div class="pool-tabs" id="codex-tabs" role="tablist"></div>
+      <div class="pool-abilities" id="codex-abilities"></div>
+      <div class="pool-grid" id="codex-grid"></div>
+    </section>
+
+    <footer class="start-foot">本作人物与桥段均为同学间的玩笑改编 · 校内娱乐向 · 请勿对号入座</footer>
+  </section>
+
+  <!-- ============================ 对战界面 ============================ -->
+  <section id="screen-battle" class="screen">
+    <div class="board">
+      <!-- 对手区 -->
+      <div class="side side--foe" id="foe-side">
+        <div class="score-block">
+          <div class="score-row">
+            <span class="score-label">对手成绩</span>
+            <div class="score-bar" id="foe-score-bar">
+              <div class="score-bar__inner">
+                <div class="score-fill" id="foe-score-fill"></div>
+                <div class="score-ticks"></div>
+              </div>
+              <div class="score-thumb" id="foe-score-thumb"></div>
+              <div class="score-goal" title="满 20 分直接获胜">🏆</div>
+              <div class="score-scale"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
+              <span class="score-num" id="foe-score-num" data-trend="">10</span>
+            </div>
+          </div>
+          <div class="meter-row">
+            <div class="momentum-meter" title="气势">
+              <span class="meter-label">气势</span>
+              <div class="pips" id="foe-momentum"></div>
+            </div>
+            <div class="energy-meter" title="精力">
+              <span class="meter-label">精力</span>
+              <div class="pips" id="foe-energy"></div>
+            </div>
+          </div>
+        </div>
+        <div class="who">
+          <div class="portrait portrait--foe" id="foe-portrait"><span class="portrait-fallback">?</span></div>
+          <div class="who-text">
+            <div class="who-name" id="foe-name">对手</div>
+            <div class="who-nick" id="foe-nick"></div>
+          </div>
+        </div>
+        <div class="status-row" id="foe-status"></div>
+        <div class="foe-hand-badge" id="foe-hand-count" hidden>手牌 0</div>
+      </div>
+
+      <!-- 中央战场 -->
+      <div class="arena">
+        <div class="turn-banner" id="turn-banner" aria-live="polite"></div>
+        <div class="arena-cards">
+          <div class="played-slot" id="foe-played"></div>
+          <div class="arena-center">
+            <div class="pulse-ring" aria-hidden="true"></div>
+            <div class="arena-hint" id="arena-hint">上课铃响了…</div>
+          </div>
+          <div class="played-slot" id="my-played"></div>
+        </div>
+        <div class="log-wrap">
+          <div class="log-title">
+            <img src="art/icons/icon-notebook.svg" alt="" class="log-icon" />
+            班级日志
+          </div>
+          <ul class="log" id="battle-log"></ul>
+        </div>
+      </div>
+
+      <!-- 自己区 -->
+      <div class="side side--me" id="my-side">
+        <div class="score-block">
+          <div class="score-row">
+            <span class="score-label">我的成绩</span>
+            <div class="score-bar" id="my-score-bar">
+              <div class="score-bar__inner">
+                <div class="score-fill" id="my-score-fill"></div>
+                <div class="score-ticks"></div>
+              </div>
+              <div class="score-thumb" id="my-score-thumb"></div>
+              <div class="score-goal" title="满 20 分直接获胜">🏆</div>
+              <div class="score-scale"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
+              <span class="score-num" id="my-score-num" data-trend="">10</span>
+            </div>
+          </div>
+          <div class="meter-row">
+            <div class="momentum-meter" title="气势">
+              <span class="meter-label">气势</span>
+              <div class="pips" id="my-momentum"></div>
+            </div>
+            <div class="energy-meter" title="精力">
+              <span class="meter-label">精力</span>
+              <div class="pips" id="my-energy"></div>
+            </div>
+          </div>
+        </div>
+        <div class="who">
+          <div class="portrait portrait--me" id="my-portrait"><span class="portrait-fallback">?</span></div>
+          <div class="who-text">
+            <div class="who-name" id="my-name">我</div>
+            <div class="who-nick" id="my-nick"></div>
+            <div class="passive-chip" id="my-passive" title=""></div>
+          </div>
+        </div>
+        <div class="status-row" id="my-status"></div>
+      </div>
+
+      <!-- 手牌区 -->
+      <div class="hand-zone">
+        <div class="deck-info">
+          <div class="deck-stack" id="deck-stack" title="牌堆剩余">
+            <img src="art/ui/card-back.svg" alt="牌堆" />
+            <span class="deck-count" id="deck-count">0</span>
+          </div>
+          <div class="discard-info">弃牌 <b id="discard-count">0</b></div>
+          <div class="pile-info">牌堆 <b id="pile-count">0</b></div>
+        </div>
+        <div class="hand" id="hand" role="list" aria-label="我的手牌"></div>
+        <div class="actions">
+          <button class="btn btn--ghost" id="btn-pool" title="查看双方卡池（完整说明）">卡池</button>
+          <button class="btn btn--ghost" id="btn-help" title="规则速查">规则</button>
+          <button class="btn btn--end" id="btn-end" title="结束本回合（空格）">铃响收尾<span class="kbd">空格</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-tooltip" id="card-tooltip" hidden></div>
+  </section>
+
+  <!-- ============================ 弹窗层 ============================ -->
+  <div class="overlay" id="choice-overlay" hidden>
+    <div class="dialog">
+      <h3 class="dialog-title" id="choice-title">选一个</h3>
+      <div class="dialog-options" id="choice-options"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="result-overlay" hidden>
+    <div class="dialog dialog--result">
+      <img id="result-badge" src="art/ui/badge-win.svg" alt="" class="result-badge" />
+      <h2 class="result-title" id="result-title">赢了！</h2>
+      <p class="result-text" id="result-text"></p>
+      <div class="result-stats" id="result-stats"></div>
+      <div class="dialog-actions">
+        <button class="btn btn--primary" id="btn-again">再来一局</button>
+        <button class="btn btn--ghost" id="btn-back">换个人</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="info-overlay" hidden>
+    <div class="dialog dialog--info">
+      <h3 class="dialog-title" id="info-title">规则速查</h3>
+      <div class="dialog-body" id="info-body"></div>
+      <div class="dialog-actions">
+        <button class="btn btn--ghost" id="btn-open-pool">看卡池（完整说明）</button>
+        <button class="btn btn--ghost" id="btn-info-close">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 卡池图鉴：选人页与对局中都能打开，卡面按真实卡牌尺寸展示 -->
+  <div class="overlay" id="pool-overlay" hidden>
+    <div class="dialog dialog--pool">
+      <header class="pool-head">
+        <div class="pool-who">
+          <div class="pool-portrait" id="pool-portrait"></div>
+          <div>
+            <h3 class="pool-name" id="pool-name">卡池</h3>
+            <div class="pool-nick" id="pool-nick"></div>
+          </div>
+        </div>
+        <div class="pool-abilities" id="pool-abilities"></div>
+        <button class="btn btn--ghost pool-close" id="btn-pool-close">关闭 ✕</button>
+      </header>
+      <div class="pool-tabs" id="pool-tabs" role="tablist"></div>
+      <div class="pool-grid" id="pool-grid"></div>
+      <p class="pool-tip">提示：卡牌描述就是它真实的结算规则（<b>精力</b>决定能不能打出，<b>气势</b>够 3 点才能放大招）。</p>
+    </div>
+  </div>
+
+  <!-- 剧情独白 / 关卡结算 -->
+  <div class="overlay" id="story-overlay" hidden>
+    <div class="dialog dialog--story">
+      <div class="story-speaker" id="story-speaker">旁白</div>
+      <div class="story-lines" id="story-lines"></div>
+      <div class="dialog-actions" id="story-actions"></div>
+    </div>
+  </div>
+
+  <!-- 贴图包：122 张 SVG 的表（开发版用；打包版会内联进 HTML） -->
+  <script src="../art/art-bundle.js"></script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+/* ============================================================
+   教程 / 剧情 / 无尽：模式选择、关卡列表、独白、教程解说层
+   ============================================================ */
+
+/* ---------------- 模式选择卡片 ---------------- */
+.modes {
+  max-width: 1500px;
+  margin: 0 auto var(--sp-md);
+  padding: 0 var(--sp-lg);
+}
+.modes-title {
+  font-size: var(--fs-lg);
+  color: var(--chalk);
+  margin-bottom: var(--sp-sm);
+}
+.modes-title::before { content: "✎ "; color: var(--yellow); }
+
+.modes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-md);
+}
+.mode-card {
+  position: relative;
+  text-align: left;
+  padding: var(--sp-md);
+  border-radius: var(--r-md);
+  border: 3px solid rgba(251, 247, 236, 0.18);
+  background: rgba(251, 247, 236, 0.07);
+  color: var(--chalk);
+  cursor: pointer;
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform var(--d-normal) var(--ease-out), border-color var(--d-normal), background var(--d-normal), box-shadow var(--d-normal);
+}
+.mode-card:hover { transform: translateY(-4px); background: rgba(251, 247, 236, 0.13); }
+.mode-card:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+.mode-card.is-on {
+  border-color: var(--yellow);
+  background: rgba(247, 201, 72, 0.14);
+  box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.25), var(--shadow-panel);
+}
+.mode-card.is-locked { opacity: 0.5; cursor: not-allowed; }
+.mode-card__icon { font-size: 26px; line-height: 1; }
+.mode-card__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+}
+.mode-card__tag { font-size: var(--fs-xs); color: var(--yellow); }
+.mode-card__desc { font-size: var(--fs-xs); color: var(--c-text-dim); line-height: 1.5; }
+.mode-card__badge {
+  position: absolute;
+  top: -10px;
+  right: 12px;
+  background: var(--yellow);
+  color: #22190A;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 10px;
+  border-radius: 999px;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+}
+
+/* ---------------- 剧情关卡列表 ---------------- */
+.stages {
+  max-width: 1500px;
+  margin: 0 auto var(--sp-lg);
+  padding: 0 var(--sp-lg);
+}
+.stages-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-md);
+  flex-wrap: wrap;
+}
+.stages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--sp-md);
+  margin-top: var(--sp-sm);
+}
+.stage-card {
+  text-align: left;
+  padding: var(--sp-md);
+  border-radius: var(--r-md);
+  border: 3px solid rgba(251, 247, 236, 0.18);
+  background: rgba(251, 247, 236, 0.07);
+  color: var(--chalk);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform var(--d-normal) var(--ease-out), border-color var(--d-normal);
+}
+.stage-card:hover { transform: translateY(-3px); }
+.stage-card.is-on { border-color: var(--yellow); background: rgba(247, 201, 72, 0.14); }
+.stage-card.is-locked { opacity: 0.45; cursor: not-allowed; transform: none; }
+.stage-card__no {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--yellow);
+  letter-spacing: 0.12em;
+}
+.stage-card__title { font-family: var(--font-display); font-size: var(--fs-lg); }
+.stage-card__sub { font-size: var(--fs-xs); color: var(--c-text-dim); }
+.stage-card__goal {
+  font-size: 11px;
+  color: #FFE9B0;
+  background: rgba(0, 0, 0, 0.28);
+  border-left: 3px solid var(--yellow);
+  border-radius: var(--r-sm);
+  padding: 4px 8px;
+}
+.stage-card__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  font-size: var(--fs-xs);
+  color: var(--c-text-dim);
+  margin-top: auto;
+}
+.stage-card__pips { display: inline-flex; gap: 4px; }
+.stage-card__pip {
+  width: 16px; height: 6px; border-radius: 3px;
+  background: rgba(251, 247, 236, 0.22);
+}
+.stage-card__pip.is-done { background: var(--green); }
+.stage-card__pip.is-now { background: var(--yellow); }
+
+/* ---------------- 剧情独白弹窗 ---------------- */
+.dialog--story {
+  width: min(680px, 94vw);
+  background: linear-gradient(180deg, #FFFDF6, #F5EEDC);
+}
+.story-speaker {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  color: #14203A;
+  border-left: 5px solid var(--c-accent, #5BAAE0);
+  padding-left: 10px;
+  margin-bottom: var(--sp-sm);
+}
+.story-lines p {
+  margin: 0 0 8px;
+  font-size: var(--fs-md);
+  line-height: 1.7;
+  color: #2B3A55;
+}
+.story-lines p.is-focus { color: #14203A; font-weight: 600; }
+.story-reward {
+  margin-top: var(--sp-sm);
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  background: rgba(247, 201, 72, 0.22);
+  border: 2px dashed rgba(240, 145, 63, 0.6);
+  font-size: var(--fs-sm);
+  color: #5A3A08;
+}
+
+/* ============================================================
+   教程解说层：压暗全屏 + 高亮框 + 底部解说气泡
+   ============================================================ */
+.tut {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+}
+.tut__mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 16, 14, 0.34);
+  transition: background var(--d-normal);
+}
+.tut__spot {
+  position: absolute;
+  border-radius: var(--r-md);
+  border: 3px solid var(--yellow);
+  box-shadow: 0 0 0 9999px rgba(8, 16, 14, 0.34),
+              0 0 22px rgba(247, 201, 72, 0.9),
+              inset 0 0 26px rgba(247, 201, 72, 0.35);
+  transition: left var(--d-normal) var(--ease-out), top var(--d-normal) var(--ease-out),
+              width var(--d-normal) var(--ease-out), height var(--d-normal) var(--ease-out);
+  pointer-events: none;
+  animation: tut-spot-pulse 1.6s var(--ease-soft) infinite;
+}
+@keyframes tut-spot-pulse {
+  0%, 100% { border-color: rgba(247, 201, 72, 0.85); }
+  50% { border-color: rgba(255, 240, 190, 1); }
+}
+.tut__box {
+  position: absolute;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(620px, 94vw);
+  background: linear-gradient(180deg, #FFFDF6, #F6EEDA);
+  color: #14203A;
+  border-radius: var(--r-lg);
+  border: 3px solid rgba(35, 50, 79, 0.28);
+  box-shadow: var(--shadow-panel);
+  padding: var(--sp-md) var(--sp-md) var(--sp-sm);
+  pointer-events: auto;
+  animation: dialog-in var(--d-slow) var(--ease-pop);
+}
+.tut__teach {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  margin-bottom: 4px;
+}
+.tut__teach::before { content: "👉 "; }
+.tut__say { margin: 0 0 var(--sp-sm); font-size: var(--fs-md); line-height: 1.65; color: #2B3A55; }
+.tut__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-sm);
+}
+.tut__step { font-size: var(--fs-xs); color: #6B7A94; font-family: var(--font-mono); }
+.tut__btns { display: flex; gap: var(--sp-sm); }
+.tut__btns .btn { color: var(--ink); border-color: rgba(35, 50, 79, 0.32); }
+.tut__btns .btn--primary { color: #3A2A08; }
+.tut--done .tut__mask { background: rgba(8, 16, 14, 0.72); }
+
+/* ---------------- 对手手牌数角标（"数他还剩几张"） ---------------- */
+.foe-hand-badge {
+  margin-left: auto;
+  align-self: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--chalk);
+  background: rgba(0, 0, 0, 0.34);
+  border: 2px dashed rgba(251, 247, 236, 0.4);
+  border-radius: 999px;
+  padding: 3px 12px;
+  white-space: nowrap;
+}
+@media (max-width: 620px) {
+  .foe-hand-badge { font-size: 10px; padding: 2px 8px; }
+}
+
+/* ---------------- 手机 ---------------- */
+@media (max-width: 900px) {
+  .modes-grid { grid-template-columns: 1fr; }
+  .modes { padding: 0 var(--sp-sm); }
+  .stages { padding: 0 var(--sp-sm); }
+  .mode-card { min-height: 0; padding: var(--sp-sm) var(--sp-md); }
+  .mode-card__icon { font-size: 20px; }
+}
+@media (max-width: 620px) {
+  .tut__box { width: 96vw; padding: var(--sp-sm); bottom: 8px; }
+  .tut__say { font-size: var(--fs-sm); }
+  .tut__btns .btn { padding: 8px 10px; font-size: var(--fs-sm); }
+  .stage-card { padding: var(--sp-sm); }
+}

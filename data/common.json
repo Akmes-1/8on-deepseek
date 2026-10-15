@@ -1,0 +1,376 @@
+{
+  "version": 1,
+  "name": "公共牌池",
+  "cards": [
+    {
+      "id": "common_01",
+      "name": "抢答",
+      "type": "attack",
+      "cost": 1,
+      "momentum": 0,
+      "rarity": "common",
+      "text": "对对手造成 1 点成绩打击；若对手成绩已低于 10 分，改为 2 点。",
+      "tags": [
+        "课堂"
+      ],
+      "ops": [
+        {
+          "op": "if",
+          "cond": {
+            "type": "scoreBelow",
+            "who": "opp",
+            "value": 10
+          },
+          "then": [
+            {
+              "op": "damage",
+              "value": 2,
+              "target": "opp"
+            }
+          ],
+          "else": [
+            {
+              "op": "damage",
+              "value": 1,
+              "target": "opp"
+            }
+          ]
+        }
+      ],
+      "count": 1,
+      "art": "art/cards/common_01.svg"
+    },
+    {
+      "id": "common_02",
+      "name": "传纸条",
+      "type": "tactic",
+      "cost": 0,
+      "momentum": 0,
+      "rarity": "common",
+      "text": "亮出对手手牌，并让对手随机弃 1 张牌。对手空手时只能亮牌。",
+      "tags": [
+        "课堂",
+        "情报"
+      ],
+      "ops": [
+        {
+          "op": "revealHand",
+          "target": "opp"
+        },
+        {
+          "op": "discard",
+          "value": 1,
+          "target": "opp"
+        }
+      ],
+      "count": 1,
+      "art": "art/cards/common_02.svg"
+    },
+    {
+      "id": "common_03",
+      "name": "抄作业",
+      "type": "support",
+      "cost": 1,
+      "momentum": 0,
+      "rarity": "common",
+      "text": "复制你上一张打出的牌的效果；本局第一次出这张牌时，改为抽 1 张。",
+      "tags": [
+        "作业",
+        "连招"
+      ],
+      "ops": [
+        {
+          "op": "if",
+          "cond": {
+            "type": "flagAtLeast",
+            "flag": "zuoyeUsed",
+            "value": 1
+          },
+          "then": [
+            {
+              "op": "copyLastCard"
+            }
+          ],
+          "else": [
+            {
+              "op": "draw",
+              "value": 1
+            },
+            {
+              "op": "addFlag",
+              "flag": "zuoyeUsed",
+              "value": 1
+            }
+          ]
+        }
+      ],
+      "count": 1,
+      "art": "art/cards/common_03.svg"
+    },
+    {
+      "id": "common_04",
+      "name": "保温杯",
+      "type": "tactic",
+      "cost": 1,
+      "momentum": 0,
+      "rarity": "common",
+      "text": "自己回复 1 点成绩，并清除自己身上的【心态崩】。",
+      "tags": [
+        "养生",
+        "恢复"
+      ],
+      "ops": [
+        {
+          "op": "heal",
+          "value": 1,
+          "target": "self"
+        },
+        {
+          "op": "clearStatus",
+          "status": "tilt",
+          "target": "self"
+        }
+      ],
+      "count": 1,
+      "art": "art/cards/common_04.svg"
+    },
+    {
+      "id": "common_05",
+      "name": "课间十分钟",
+      "type": "support",
+      "cost": 0,
+      "momentum": 0,
+      "rarity": "common",
+      "text": "抽 2 张牌。这十分钟，够你把整局翻个面。",
+      "tags": [
+        "课间",
+        "抽牌"
+      ],
+      "ops": [
+        {
+          "op": "draw",
+          "value": 2
+        }
+      ],
+      "count": 1,
+      "art": "art/cards/common_05.svg"
+    },
+    {
+      "id": "common_06",
+      "name": "自习课",
+      "type": "attack",
+      "cost": 1,
+      "momentum": 0,
+      "rarity": "common",
+      "text": "对对手造成 1 点成绩打击；若对手身上有至少 2 层【干儿子】，改为 2 点。",
+      "tags": [
+        "课堂",
+        "压制"
+      ],
+      "ops": [
+        {
+          "op": "if",
+          "cond": {
+            "type": "statusAtLeast",
+            "who": "opp",
+            "status": "followers",
+            "value": 2
+          },
+          "then": [
+            {
+              "op": "damage",
+              "value": 2,
+              "target": "opp"
+            }
+          ],
+          "else": [
+            {
+              "op": "damage",
+              "value": 1,
+              "target": "opp"
+            }
+          ]
+        }
+      ],
+      "count": 1,
+      "art": "art/cards/common_06.svg"
+    },
+    {
+      "id": "common_07",
+      "name": "食堂冲刺",
+      "type": "attack",
+      "cost": 2,
+      "momentum": 0,
+      "rarity": "common",
+      "text": "对对手造成 2 点成绩打击。铃一响，你就是博尔特。",
+      "tags": [
+        "干饭",
+        "爆发"
+      ],
+      "ops": [
+        {
+          "op": "damage",
+          "value": 2,
+          "target": "opp"
+        }
+      ],
+      "count": 1,
+      "art": "art/cards/common_07.svg"
+    },
+    {
+      "id": "common_08",
+      "name": "班主任的凝视",
+      "type": "tactic",
+      "cost": 1,
+      "momentum": 0,
+      "rarity": "rare",
+      "text": "给对手 1 层【被点名】，持续 2 回合：他接下来的一张牌直接无效。",
+      "tags": [
+        "办公室",
+        "封印"
+      ],
+      "ops": [
+        {
+          "op": "applyStatus",
+          "status": "silence",
+          "value": 1,
+          "target": "opp",
+          "duration": 2
+        }
+      ],
+      "count": 1,
+      "art": "art/cards/common_08.svg"
+    },
+    {
+      "id": "common_09",
+      "name": "广播体操",
+      "type": "support",
+      "cost": 1,
+      "momentum": 0,
+      "rarity": "common",
+      "text": "给自己 1 层【状态不错】：每回合结束 +1 成绩；若你此刻精力还剩至少 2 点，再加 1 层。",
+      "tags": [
+        "操场",
+        "节奏"
+      ],
+      "ops": [
+        {
+          "op": "applyStatus",
+          "status": "buff",
+          "value": 1,
+          "target": "self",
+          "duration": -1
+        },
+        {
+          "op": "if",
+          "cond": {
+            "type": "energyAtLeast",
+            "value": 2
+          },
+          "then": [
+            {
+              "op": "applyStatus",
+              "status": "buff",
+              "value": 1,
+              "target": "self",
+              "duration": -1
+            }
+          ]
+        }
+      ],
+      "count": 1,
+      "art": "art/cards/common_09.svg"
+    },
+    {
+      "id": "common_10",
+      "name": "值日表",
+      "type": "tactic",
+      "cost": 1,
+      "momentum": 0,
+      "rarity": "common",
+      "text": "给对手 2 层【心态崩】，持续 2 回合：他每回合开始要弃 1 张牌（每层弃 1 张）。",
+      "tags": [
+        "值日",
+        "干扰"
+      ],
+      "ops": [
+        {
+          "op": "applyStatus",
+          "status": "tilt",
+          "value": 2,
+          "target": "opp",
+          "duration": 2
+        }
+      ],
+      "count": 1,
+      "art": "art/cards/common_10.svg"
+    },
+    {
+      "id": "common_11",
+      "name": "临时抱佛脚",
+      "type": "attack",
+      "cost": 2,
+      "momentum": 0,
+      "rarity": "rare",
+      "text": "对对手造成 1 点成绩打击；若对手成绩高于 14 分，改为 2 点。考前五分钟，信仰拉满。",
+      "tags": [
+        "考试",
+        "追击"
+      ],
+      "ops": [
+        {
+          "op": "if",
+          "cond": {
+            "type": "scoreAbove",
+            "who": "opp",
+            "value": 14
+          },
+          "then": [
+            {
+              "op": "damage",
+              "value": 2,
+              "target": "opp"
+            }
+          ],
+          "else": [
+            {
+              "op": "damage",
+              "value": 1,
+              "target": "opp"
+            }
+          ]
+        }
+      ],
+      "count": 1,
+      "art": "art/cards/common_11.svg"
+    },
+    {
+      "id": "common_12",
+      "name": "球场占位",
+      "type": "support",
+      "cost": 2,
+      "momentum": 0,
+      "rarity": "common",
+      "text": "抽 1 张牌，并给自己 1 层【声援】：对手受到的伤害 +1（每层 +1）。",
+      "tags": [
+        "操场",
+        "气势"
+      ],
+      "ops": [
+        {
+          "op": "draw",
+          "value": 1
+        },
+        {
+          "op": "applyStatus",
+          "status": "hype",
+          "value": 1,
+          "target": "self",
+          "duration": -1
+        }
+      ],
+      "count": 1,
+      "art": "art/cards/common_12.svg"
+    }
+  ]
+}

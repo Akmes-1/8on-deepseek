@@ -1,0 +1,19 @@
+{
+  "name": "baban-fengyun",
+  "version": "1.1.0",
+  "private": true,
+  "description": "八班风云 · 校园题材原创卡牌对决网页游戏（纯静态，双击即玩 / 可直接部署到 GitHub Pages）",
+  "scripts": {
+    "build": "node tools/art-bundle.js && node tools/embed-data.js && node tools/build-standalone.js",
+    "build:lazy": "node tools/embed-data.js && node tools/build-standalone.js --lazy-art",
+    "build:upload": "node tools/art-bundle.js && node tools/embed-data.js && node tools/build-upload.js",
+    "check": "node tools/selftest.js",
+    "deploy:check": "node tools/check-deploy.js",
+    "sim": "node tools/simulate.js",
+    "serve": "node tools/serve.js",
+    "smoke": "node tools/browser-smoke.js",
+    "push": "node tools/deploy-github.js"
+  },
+  "keywords": ["card-game", "campus", "web-game", "vanilla-js", "github-pages"],
+  "license": "MIT"
+}

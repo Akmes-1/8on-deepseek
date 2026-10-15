@@ -1,0 +1,2899 @@
+{
+  "version": 1,
+  "startScore": 10,
+  "maxScore": 20,
+  "scoreFloor": 0,
+  "maxEnergy": 3,
+  "maxMomentum": 5,
+  "handLimit": 8,
+  "startHand": 4,
+  "drawPerTurn": 2,
+  "firstTurnDrawPenalty": 0,
+  "characters": [
+    {
+      "id": "zhangkaiyao",
+      "name": "张凯尧",
+      "nickname": "骚哥",
+      "gender": "男",
+      "tagline": "舌头一吐，全班安静——然后爆笑。",
+      "desc": "八班的足球信仰担当，一颗心同时装着国安、皇马和曼联。球场上爱倒挂金钩，教室里爱吐舌头庆祝，因此得名“骚哥”。",
+      "hpScoreStart": 10,
+      "energyMax": 3,
+      "momentumStart": 0,
+      "passive": {
+        "name": "体能怪",
+        "text": "回合开始：若没有【骚气】就补 1 层（永久，用掉后下回合再补，让第一张牌 +1 强度），并回复 1 点成绩。",
+        "trigger": "turnStart",
+        "ops": [
+          {
+            "op": "if",
+            "cond": {
+              "type": "not",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "sao",
+                "value": 1
+              }
+            },
+            "then": [
+              {
+                "op": "applyStatus",
+                "status": "sao",
+                "value": 1,
+                "target": "self",
+                "duration": -1
+              }
+            ]
+          },
+          {
+            "op": "heal",
+            "value": 1,
+            "target": "self"
+          }
+        ]
+      },
+      "ult": {
+        "id": "zhangkaiyao_18",
+        "name": "帽子戏法",
+        "type": "ult",
+        "cost": 1,
+        "momentum": 3,
+        "rarity": "epic",
+        "text": "消耗 2 层【球权】：造成 5 点打击并回复 1 点；球权不够则造成 3 点并获得 1 层【骚气】。",
+        "tags": [
+          "足球",
+          "大招"
+        ],
+        "ops": [
+          {
+            "op": "if",
+            "cond": {
+              "type": "flagAtLeast",
+              "flag": "ball",
+              "value": 2
+            },
+            "then": [
+              {
+                "op": "consumeFlag",
+                "flag": "ball",
+                "value": 2
+              },
+              {
+                "op": "damage",
+                "value": 5,
+                "target": "opp"
+              },
+              {
+                "op": "heal",
+                "value": 1,
+                "target": "self"
+              }
+            ],
+            "else": [
+              {
+                "op": "damage",
+                "value": 3,
+                "target": "opp"
+              },
+              {
+                "op": "applyStatus",
+                "status": "sao",
+                "value": 1,
+                "target": "self",
+                "duration": 1
+              }
+            ]
+          }
+        ],
+        "count": 1,
+        "art": "art/cards/zhangkaiyao_18.svg"
+      },
+      "portrait": "art/portraits/zhangkaiyao.svg",
+      "icon": "art/icons/avatar-zhangkaiyao.svg",
+      "themeColor": "#1FA34A",
+      "strategy": "先用【球权】把弹药攒够，再用【骚气】把第一脚射门踢成世界波。",
+      "decks": [
+        {
+          "id": "zhangkaiyao_01",
+          "name": "边路起球",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "攒下 2 层【球权】，并抽 1 张牌。边路起球，中路包抄。",
+          "tags": [
+            "足球",
+            "球权",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "addFlag",
+              "flag": "ball",
+              "value": 2
+            },
+            {
+              "op": "draw",
+              "value": 1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_01.svg"
+        },
+        {
+          "id": "zhangkaiyao_02",
+          "name": "油炸丸子",
+          "type": "attack",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "造成 2 点打击；若有 1 层【球权】，消耗 1 层改为 3 点。油炸丸子，晃过两个人。",
+          "tags": [
+            "足球",
+            "过人",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "flagAtLeast",
+                "flag": "ball",
+                "value": 1
+              },
+              "then": [
+                {
+                  "op": "consumeFlag",
+                  "flag": "ball",
+                  "value": 1
+                },
+                {
+                  "op": "damage",
+                  "value": 3,
+                  "target": "opp"
+                }
+              ],
+              "else": [
+                {
+                  "op": "damage",
+                  "value": 2,
+                  "target": "opp"
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_02.svg"
+        },
+        {
+          "id": "zhangkaiyao_03",
+          "name": "禁区前沿",
+          "type": "support",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "攒下 3 层【球权】。站在禁区前沿等一个机会。",
+          "tags": [
+            "足球",
+            "球权",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "addFlag",
+              "flag": "ball",
+              "value": 3
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_03.svg"
+        },
+        {
+          "id": "zhangkaiyao_04",
+          "name": "倒挂金钩",
+          "type": "attack",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "造成 3 点打击；若你有 2 层【球权】，消耗 2 层改为 5 点。倒挂金钩，全班屏息。",
+          "tags": [
+            "足球",
+            "绝技",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "flagAtLeast",
+                "flag": "ball",
+                "value": 2
+              },
+              "then": [
+                {
+                  "op": "consumeFlag",
+                  "flag": "ball",
+                  "value": 2
+                },
+                {
+                  "op": "damage",
+                  "value": 5,
+                  "target": "opp"
+                }
+              ],
+              "else": [
+                {
+                  "op": "damage",
+                  "value": 3,
+                  "target": "opp"
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_04.svg"
+        },
+        {
+          "id": "zhangkaiyao_05",
+          "name": "世界波",
+          "type": "attack",
+          "cost": 3,
+          "momentum": 0,
+          "rarity": "epic",
+          "text": "造成 5 点成绩打击。三十米开外，一脚世界波。",
+          "tags": [
+            "足球",
+            "爆发",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "damage",
+              "value": 5,
+              "target": "opp"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_05.svg"
+        },
+        {
+          "id": "zhangkaiyao_06",
+          "name": "骚气外露",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "获得 1 层【骚气】并抽 1 张牌：本回合下一张牌效果 +1。",
+          "tags": [
+            "骚气",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "sao",
+              "value": 1,
+              "target": "self",
+              "duration": 1
+            },
+            {
+              "op": "draw",
+              "value": 1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_06.svg"
+        },
+        {
+          "id": "zhangkaiyao_07",
+          "name": "门将扑救",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "回复 3 点成绩，并清掉自己身上的【臭气】和【尴尬】。门将扑救，全场鼓掌。",
+          "tags": [
+            "防守",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "heal",
+              "value": 3,
+              "target": "self"
+            },
+            {
+              "op": "clearStatus",
+              "status": "stink",
+              "target": "self"
+            },
+            {
+              "op": "clearStatus",
+              "status": "cringe",
+              "target": "self"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_07.svg"
+        },
+        {
+          "id": "zhangkaiyao_08",
+          "name": "人墙防守",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "获得 3 层【面子】：接下来挡掉 3 点成绩打击。",
+          "tags": [
+            "防守",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "shield",
+              "value": 3,
+              "target": "self",
+              "duration": 2
+            },
+            {
+              "op": "heal",
+              "value": 1,
+              "target": "self"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_08.svg"
+        },
+        {
+          "id": "zhangkaiyao_09",
+          "name": "替补席热身",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "获得 1 点气势并抽 1 张牌。骚哥在场边压腿，随时准备上场。",
+          "tags": [
+            "气势",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "gainMomentum",
+              "value": 1
+            },
+            {
+              "op": "draw",
+              "value": 1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_09.svg"
+        },
+        {
+          "id": "zhangkaiyao_10",
+          "name": "球迷助威",
+          "type": "support",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "获得 1 层【声援】（永久）和 3 层【面子】。看台全在喊你名字。",
+          "tags": [
+            "声援",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "hype",
+              "value": 1,
+              "target": "self",
+              "duration": -1
+            },
+            {
+              "op": "applyStatus",
+              "status": "shield",
+              "value": 3,
+              "target": "self",
+              "duration": 2
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_10.svg"
+        },
+        {
+          "id": "zhangkaiyao_11",
+          "name": "边裁举旗",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "亮出对手手牌，并让对手下一张牌无效。边裁举旗：越位！",
+          "tags": [
+            "干扰",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "revealHand",
+              "target": "opp"
+            },
+            {
+              "op": "cancelNext",
+              "target": "opp"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_11.svg"
+        },
+        {
+          "id": "zhangkaiyao_12",
+          "name": "吐舌头庆祝",
+          "type": "tactic",
+          "cost": 0,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "获得 1 层【骚气】并回复 2 点成绩。进球了就得吐个舌头。",
+          "tags": [
+            "庆祝",
+            "梗",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "sao",
+              "value": 1,
+              "target": "self",
+              "duration": 1
+            },
+            {
+              "op": "heal",
+              "value": 2,
+              "target": "self"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_12.svg"
+        },
+        {
+          "id": "zhangkaiyao_13",
+          "name": "换人调整",
+          "type": "support",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "从牌堆里找 1 张专属牌，并获得 2 点精力。换个人，换个活法。",
+          "tags": [
+            "调度",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "searchDeck",
+              "value": 1,
+              "filter": "专属"
+            },
+            {
+              "op": "gainEnergy",
+              "value": 2
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_13.svg"
+        },
+        {
+          "id": "zhangkaiyao_14",
+          "name": "实况足球",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "复制本回合上一张牌的效果；本回合没出过牌则抽 1 张。手柄在手，天下我有。",
+          "tags": [
+            "游戏",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "flagAtLeast",
+                "flag": "playedCardThisTurn",
+                "value": 1
+              },
+              "then": [
+                {
+                  "op": "copyLastCard"
+                }
+              ],
+              "else": [
+                {
+                  "op": "draw",
+                  "value": 1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_14.svg"
+        },
+        {
+          "id": "zhangkaiyao_15",
+          "name": "解说腔",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "抽 2 张牌；若你的成绩低于 10，再 +1 精力。解说一喊，腿就有劲。",
+          "tags": [
+            "解说",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "draw",
+              "value": 2
+            },
+            {
+              "op": "if",
+              "cond": {
+                "type": "scoreBelow",
+                "who": "self",
+                "value": 10
+              },
+              "then": [
+                {
+                  "op": "gainEnergy",
+                  "value": 1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_15.svg"
+        },
+        {
+          "id": "zhangkaiyao_16",
+          "name": "点球大战",
+          "type": "attack",
+          "cost": 3,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "造成 4 点打击；若对手成绩高于 14，改为 5 点。十二码前全班屏息。",
+          "tags": [
+            "足球",
+            "后期"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "scoreAbove",
+                "who": "opp",
+                "value": 14
+              },
+              "then": [
+                {
+                  "op": "damage",
+                  "value": 5,
+                  "target": "opp"
+                }
+              ],
+              "else": [
+                {
+                  "op": "damage",
+                  "value": 4,
+                  "target": "opp"
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_16.svg"
+        },
+        {
+          "id": "zhangkaiyao_17",
+          "name": "加时赛",
+          "type": "support",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "epic",
+          "text": "第 5 回合后追加一个回合（每局 1 次）；否则 +1 精力、抽 1 张。",
+          "tags": [
+            "足球",
+            "后期"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "not",
+                "cond": {
+                  "type": "flagAtLeast",
+                  "flag": "extraTime",
+                  "value": 1
+                }
+              },
+              "then": [
+                {
+                  "op": "addFlag",
+                  "flag": "extraTime",
+                  "value": 1
+                },
+                {
+                  "op": "if",
+                  "cond": {
+                    "type": "turnAtLeast",
+                    "value": 5
+                  },
+                  "then": [
+                    {
+                      "op": "extraTurn",
+                      "value": 1
+                    }
+                  ],
+                  "else": [
+                    {
+                      "op": "gainEnergy",
+                      "value": 1
+                    },
+                    {
+                      "op": "draw",
+                      "value": 1
+                    }
+                  ]
+                }
+              ],
+              "else": [
+                {
+                  "op": "gainEnergy",
+                  "value": 1
+                },
+                {
+                  "op": "draw",
+                  "value": 1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_17.svg"
+        },
+        {
+          "id": "zhangkaiyao_18",
+          "name": "帽子戏法",
+          "type": "ult",
+          "cost": 1,
+          "momentum": 3,
+          "rarity": "epic",
+          "text": "造成 4 点打击并攒下 1 层【骚气】；若你有 2 层【球权】，消耗 2 层改为 6 点并回复 1 点。",
+          "tags": [
+            "足球",
+            "大招"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "flagAtLeast",
+                "flag": "ball",
+                "value": 2
+              },
+              "then": [
+                {
+                  "op": "consumeFlag",
+                  "flag": "ball",
+                  "value": 2
+                },
+                {
+                  "op": "damage",
+                  "value": 6,
+                  "target": "opp"
+                },
+                {
+                  "op": "heal",
+                  "value": 1,
+                  "target": "self"
+                }
+              ],
+              "else": [
+                {
+                  "op": "damage",
+                  "value": 4,
+                  "target": "opp"
+                },
+                {
+                  "op": "applyStatus",
+                  "status": "sao",
+                  "value": 1,
+                  "target": "self",
+                  "duration": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/zhangkaiyao_18.svg"
+        }
+      ]
+    },
+    {
+      "id": "liuzijia",
+      "name": "刘梓嘉",
+      "nickname": "人设小天后",
+      "gender": "女",
+      "tagline": "戏比天大，创可贴是配饰，不是伤。",
+      "desc": "八班公认的演技派，擅长用创可贴和纱布做造型，随身带着保温杯和请假条。围观的人越多，她的状态越好。",
+      "hpScoreStart": 10,
+      "energyMax": 3,
+      "momentumStart": 0,
+      "passive": {
+        "name": "入戏自动挡",
+        "text": "每回合开始获得 1 层【演技】。她的戏，从来不用开机。",
+        "trigger": "turnStart",
+        "ops": [
+          {
+            "op": "applyStatus",
+            "status": "acting",
+            "value": 1,
+            "target": "self",
+            "duration": -1
+          }
+        ]
+      },
+      "ult": {
+        "id": "liuzijia_18",
+        "name": "影后时刻",
+        "type": "ult",
+        "cost": 1,
+        "momentum": 3,
+        "rarity": "epic",
+        "text": "对手有 2 层【众目睽睽】时：5 点打击并回复 2 点；否则 3 点打击并给他 2 层。",
+        "tags": [
+          "演技",
+          "大招"
+        ],
+        "ops": [
+          {
+            "op": "if",
+            "cond": {
+              "type": "statusAtLeast",
+              "who": "opp",
+              "status": "spotlight",
+              "value": 2
+            },
+            "then": [
+              {
+                "op": "damage",
+                "value": 5,
+                "target": "opp"
+              },
+              {
+                "op": "heal",
+                "value": 2,
+                "target": "self"
+              }
+            ],
+            "else": [
+              {
+                "op": "damage",
+                "value": 3,
+                "target": "opp"
+              },
+              {
+                "op": "applyStatus",
+                "status": "spotlight",
+                "value": 2,
+                "target": "opp",
+                "duration": 2
+              }
+            ]
+          }
+        ],
+        "count": 1,
+        "art": "art/cards/liuzijia_18.svg"
+      },
+      "portrait": "art/portraits/liuzijia.svg",
+      "icon": "art/icons/avatar-liuzijia.svg",
+      "themeColor": "#E36FA8",
+      "strategy": "早点把【演技】堆上去，再用【众目睽睽】让对手在所有人的注视下持续掉分。",
+      "decks": [
+        {
+          "id": "liuzijia_01",
+          "name": "镜头感",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "获得 2 层【演技】。镜头一对准，刘梓嘉自动切换主角模式。",
+          "tags": [
+            "演技",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "acting",
+              "value": 2,
+              "target": "self",
+              "duration": -1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_01.svg"
+        },
+        {
+          "id": "liuzijia_02",
+          "name": "入戏三秒",
+          "type": "attack",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "【演技】至少 2 层时造成 3 点打击；否则造成 1 点并获得 1 层【演技】。",
+          "tags": [
+            "演技",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "acting",
+                "value": 2
+              },
+              "then": [
+                {
+                  "op": "damage",
+                  "value": 3,
+                  "target": "opp"
+                }
+              ],
+              "else": [
+                {
+                  "op": "damage",
+                  "value": 1,
+                  "target": "opp"
+                },
+                {
+                  "op": "applyStatus",
+                  "status": "acting",
+                  "value": 1,
+                  "target": "self",
+                  "duration": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_02.svg"
+        },
+        {
+          "id": "liuzijia_03",
+          "name": "众目睽睽",
+          "type": "tactic",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "给对手 2 层【众目睽睽】（3 回合）：他每回合开始 -2 成绩。",
+          "tags": [
+            "围观",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "spotlight",
+              "value": 2,
+              "target": "opp",
+              "duration": 2
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_03.svg"
+        },
+        {
+          "id": "liuzijia_04",
+          "name": "哭戏一条过",
+          "type": "attack",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "造成 2 点打击；若你【演技】至少 3 层，改为 4 点。眼泪说来就来。",
+          "tags": [
+            "演技",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "acting",
+                "value": 3
+              },
+              "then": [
+                {
+                  "op": "damage",
+                  "value": 4,
+                  "target": "opp"
+                }
+              ],
+              "else": [
+                {
+                  "op": "damage",
+                  "value": 2,
+                  "target": "opp"
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_04.svg"
+        },
+        {
+          "id": "liuzijia_05",
+          "name": "创可贴美学",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "获得 2 层【创可贴】（每层抵消 1 点掉分）；【演技】够 2 层再加 1 层。",
+          "tags": [
+            "创可贴",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "bandage",
+              "value": 2,
+              "target": "self",
+              "duration": -1
+            },
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "acting",
+                "value": 2
+              },
+              "then": [
+                {
+                  "op": "applyStatus",
+                  "status": "bandage",
+                  "value": 2,
+                  "target": "self",
+                  "duration": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_05.svg"
+        },
+        {
+          "id": "liuzijia_06",
+          "name": "人设加成",
+          "type": "support",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "获得 1 层【演技】，并给对手 1 层【众目睽睽】（2 回合）。",
+          "tags": [
+            "人设",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "acting",
+              "value": 1,
+              "target": "self",
+              "duration": -1
+            },
+            {
+              "op": "applyStatus",
+              "status": "spotlight",
+              "value": 1,
+              "target": "opp",
+              "duration": 2
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_06.svg"
+        },
+        {
+          "id": "liuzijia_07",
+          "name": "奶茶杯",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "回复 2 点成绩，并清除自己的【心态崩】。奶茶在手，人设不崩。",
+          "tags": [
+            "恢复",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "heal",
+              "value": 2,
+              "target": "self"
+            },
+            {
+              "op": "clearStatus",
+              "status": "tilt",
+              "target": "self"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_07.svg"
+        },
+        {
+          "id": "liuzijia_08",
+          "name": "围观群众",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "给对手 1 层【众目睽睽】（2 回合）并抽 1 张牌。人越多她越来劲。",
+          "tags": [
+            "围观",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "spotlight",
+              "value": 1,
+              "target": "opp",
+              "duration": 2
+            },
+            {
+              "op": "draw",
+              "value": 1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_08.svg"
+        },
+        {
+          "id": "liuzijia_09",
+          "name": "请假条",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "回复 3 点成绩；成绩不低于 12 时改为回复 1 点并抽 1 张。理由：造型需要。",
+          "tags": [
+            "请假条",
+            "梗",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "scoreBelow",
+                "who": "self",
+                "value": 12
+              },
+              "then": [
+                {
+                  "op": "heal",
+                  "value": 3,
+                  "target": "self"
+                }
+              ],
+              "else": [
+                {
+                  "op": "heal",
+                  "value": 3,
+                  "target": "self"
+                },
+                {
+                  "op": "draw",
+                  "value": 1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_09.svg"
+        },
+        {
+          "id": "liuzijia_10",
+          "name": "造型时间",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "获得 2 层【面子护盾】和 1 层【创可贴】。补个妆，顺便补个防。",
+          "tags": [
+            "造型",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "shield",
+              "value": 2,
+              "target": "self",
+              "duration": 2
+            },
+            {
+              "op": "applyStatus",
+              "status": "bandage",
+              "value": 1,
+              "target": "self",
+              "duration": -1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_10.svg"
+        },
+        {
+          "id": "liuzijia_11",
+          "name": "稳住别慌",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "清除自己的【尴尬】和【心态崩】，并回复 1 点成绩。深呼吸，演技还在。",
+          "tags": [
+            "心态",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "clearStatus",
+              "status": "cringe",
+              "target": "self"
+            },
+            {
+              "op": "clearStatus",
+              "status": "tilt",
+              "target": "self"
+            },
+            {
+              "op": "heal",
+              "value": 1,
+              "target": "self"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_11.svg"
+        },
+        {
+          "id": "liuzijia_12",
+          "name": "抢镜",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "把身上的【心态崩】最多 2 层、【尴尬】最多 1 层转给对手；没有【心态崩】时获得 1 层【演技】。",
+          "tags": [
+            "反转",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "tilt",
+                "value": 1
+              },
+              "then": [
+                {
+                  "op": "transferStatus",
+                  "status": "tilt",
+                  "value": 2,
+                  "from": "self",
+                  "to": "opp"
+                }
+              ],
+              "else": [
+                {
+                  "op": "applyStatus",
+                  "status": "acting",
+                  "value": 1,
+                  "target": "self",
+                  "duration": -1
+                }
+              ]
+            },
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "cringe",
+                "value": 1
+              },
+              "then": [
+                {
+                  "op": "transferStatus",
+                  "status": "cringe",
+                  "value": 1,
+                  "from": "self",
+                  "to": "opp"
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_12.svg"
+        },
+        {
+          "id": "liuzijia_13",
+          "name": "NG 重来",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "从弃牌堆回收 1 张牌，并抽 1 张。刚才那条不算，导演说重来。",
+          "tags": [
+            "重来",
+            "梗",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "recoverFromDiscard",
+              "value": 1
+            },
+            {
+              "op": "draw",
+              "value": 1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_13.svg"
+        },
+        {
+          "id": "liuzijia_14",
+          "name": "剧本围读",
+          "type": "support",
+          "cost": 0,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "抽 1 张牌；若你【演技】至少 2 层，改为抽 2 张。剧本越读越顺。",
+          "tags": [
+            "剧本",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "acting",
+                "value": 2
+              },
+              "then": [
+                {
+                  "op": "draw",
+                  "value": 2
+                }
+              ],
+              "else": [
+                {
+                  "op": "draw",
+                  "value": 1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_14.svg"
+        },
+        {
+          "id": "liuzijia_15",
+          "name": "请教导演",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "从牌堆找 1 张专属牌加入手牌，并获得 1 层【演技】。",
+          "tags": [
+            "导演",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "searchDeck",
+              "value": 1,
+              "filter": "专属"
+            },
+            {
+              "op": "applyStatus",
+              "status": "acting",
+              "value": 1,
+              "target": "self",
+              "duration": -1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_15.svg"
+        },
+        {
+          "id": "liuzijia_16",
+          "name": "杀青特写",
+          "type": "attack",
+          "cost": 3,
+          "momentum": 0,
+          "rarity": "epic",
+          "text": "造成 4 点成绩打击，并回复 2 点成绩。杀青镜头给足，全场鼓掌。",
+          "tags": [
+            "杀青",
+            "后期"
+          ],
+          "ops": [
+            {
+              "op": "damage",
+              "value": 4,
+              "target": "opp"
+            },
+            {
+              "op": "heal",
+              "value": 2,
+              "target": "self"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_16.svg"
+        },
+        {
+          "id": "liuzijia_17",
+          "name": "热搜第一",
+          "type": "tactic",
+          "cost": 3,
+          "momentum": 0,
+          "rarity": "epic",
+          "text": "给对手 2 层【众目睽睽】（2 回合）并抽 1 张牌。热搜第一，全班都在看。",
+          "tags": [
+            "热搜",
+            "后期"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "spotlight",
+              "value": 2,
+              "target": "opp",
+              "duration": 2
+            },
+            {
+              "op": "draw",
+              "value": 1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_17.svg"
+        },
+        {
+          "id": "liuzijia_18",
+          "name": "影后时刻",
+          "type": "ult",
+          "cost": 1,
+          "momentum": 3,
+          "rarity": "epic",
+          "text": "对手有 2 层【众目睽睽】时：5 点打击并回复 2 点；否则 3 点打击并给他 2 层。",
+          "tags": [
+            "演技",
+            "大招"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "opp",
+                "status": "spotlight",
+                "value": 2
+              },
+              "then": [
+                {
+                  "op": "damage",
+                  "value": 5,
+                  "target": "opp"
+                },
+                {
+                  "op": "heal",
+                  "value": 3,
+                  "target": "self"
+                }
+              ],
+              "else": [
+                {
+                  "op": "damage",
+                  "value": 3,
+                  "target": "opp"
+                },
+                {
+                  "op": "applyStatus",
+                  "status": "spotlight",
+                  "value": 2,
+                  "target": "opp",
+                  "duration": 2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/liuzijia_18.svg"
+        }
+      ]
+    },
+    {
+      "id": "renle",
+      "name": "任乐",
+      "nickname": "任妈妈",
+      "gender": "男",
+      "tagline": "一胎八个，饭点必到。",
+      "desc": "八班人缘最好的那位，认了一屋子干儿子干女儿，说话自带手势指挥。打王者最爱开团，吃饭最爱加量。",
+      "hpScoreStart": 10,
+      "energyMax": 3,
+      "momentumStart": 0,
+      "passive": {
+        "name": "妈妈体质",
+        "text": "回合开始时，若你的【干儿子】在 1~3 层之间，再自动叫来 1 个（最多叠到 5 层）。",
+        "trigger": "turnStart",
+        "ops": [
+          {
+            "op": "if",
+            "cond": {
+              "type": "and",
+              "conds": [
+                {
+                  "type": "statusAtLeast",
+                  "who": "self",
+                  "status": "followers",
+                  "value": 1
+                },
+                {
+                  "type": "not",
+                  "cond": {
+                    "type": "statusAtLeast",
+                    "who": "self",
+                    "status": "followers",
+                    "value": 4
+                  }
+                }
+              ]
+            },
+            "then": [
+              {
+                "op": "applyStatus",
+                "status": "followers",
+                "value": 1,
+                "target": "self",
+                "duration": -1
+              }
+            ]
+          }
+        ]
+      },
+      "ult": {
+        "id": "renle_18",
+        "name": "全家福",
+        "type": "ult",
+        "cost": 1,
+        "momentum": 3,
+        "rarity": "epic",
+        "text": "获得 3 层【干儿子】；之后若干儿子至少 6 层，造成 5 点打击，否则 3 点。",
+        "tags": [
+          "召唤",
+          "大招"
+        ],
+        "ops": [
+          {
+            "op": "applyStatus",
+            "status": "followers",
+            "value": 3,
+            "target": "self",
+            "duration": -1
+          },
+          {
+            "op": "if",
+            "cond": {
+              "type": "statusAtLeast",
+              "who": "self",
+              "status": "followers",
+              "value": 6
+            },
+            "then": [
+              {
+                "op": "damage",
+                "value": 5,
+                "target": "opp"
+              }
+            ],
+            "else": [
+              {
+                "op": "damage",
+                "value": 3,
+                "target": "opp"
+              }
+            ]
+          }
+        ],
+        "count": 1,
+        "art": "art/cards/renle_18.svg"
+      },
+      "portrait": "art/portraits/renle.svg",
+      "icon": "art/icons/avatar-renle.svg",
+      "themeColor": "#F2994A",
+      "strategy": "前期专心铺【干儿子】，别急着打人；层数一上去，每回合结束白拿成绩，再一波带走。",
+      "decks": [
+        {
+          "id": "renle_01",
+          "name": "认个干儿子",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "获得 1 层【干儿子】。每层每回合结束 +1 成绩，人多力量大。",
+          "tags": [
+            "召唤",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "followers",
+              "value": 1,
+              "target": "self",
+              "duration": -1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_01.svg"
+        },
+        {
+          "id": "renle_02",
+          "name": "一胎八个",
+          "type": "support",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "+1 层【干儿子】。别问，问就是一胎八个。",
+          "tags": [
+            "召唤",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "followers",
+              "value": 1,
+              "target": "self",
+              "duration": -1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_02.svg"
+        },
+        {
+          "id": "renle_03",
+          "name": "组队开黑",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "+1 层【干儿子】；若你已有 2 层以上，改为 +2 层。",
+          "tags": [
+            "召唤",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "followers",
+                "value": 2
+              },
+              "then": [
+                {
+                  "op": "applyStatus",
+                  "status": "followers",
+                  "value": 2,
+                  "target": "self",
+                  "duration": -1
+                }
+              ],
+              "else": [
+                {
+                  "op": "applyStatus",
+                  "status": "followers",
+                  "value": 1,
+                  "target": "self",
+                  "duration": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_03.svg"
+        },
+        {
+          "id": "renle_04",
+          "name": "干儿子军团",
+          "type": "attack",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "造成 2 点打击；若你有至少 4 层【干儿子】，改为 4 点。",
+          "tags": [
+            "召唤",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "followers",
+                "value": 4
+              },
+              "then": [
+                {
+                  "op": "damage",
+                  "value": 4,
+                  "target": "opp"
+                }
+              ],
+              "else": [
+                {
+                  "op": "damage",
+                  "value": 2,
+                  "target": "opp"
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_04.svg"
+        },
+        {
+          "id": "renle_05",
+          "name": "团团围住",
+          "type": "attack",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "造成 1 点打击；若你有至少 2 层【干儿子】，改为 3 点。",
+          "tags": [
+            "召唤",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "followers",
+                "value": 2
+              },
+              "then": [
+                {
+                  "op": "damage",
+                  "value": 3,
+                  "target": "opp"
+                }
+              ],
+              "else": [
+                {
+                  "op": "damage",
+                  "value": 1,
+                  "target": "opp"
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_05.svg"
+        },
+        {
+          "id": "renle_06",
+          "name": "妈妈的爱",
+          "type": "support",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "回复 2 点成绩；若你有至少 3 层【干儿子】，改为回复 4 点。",
+          "tags": [
+            "续航",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "followers",
+                "value": 3
+              },
+              "then": [
+                {
+                  "op": "heal",
+                  "value": 4,
+                  "target": "self"
+                }
+              ],
+              "else": [
+                {
+                  "op": "heal",
+                  "value": 2,
+                  "target": "self"
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_06.svg"
+        },
+        {
+          "id": "renle_07",
+          "name": "手势指挥",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "抽 1 张牌并获得 1 点精力。比划两下，队友就都懂了。",
+          "tags": [
+            "手势",
+            "梗",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "draw",
+              "value": 1
+            },
+            {
+              "op": "gainEnergy",
+              "value": 1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_07.svg"
+        },
+        {
+          "id": "renle_08",
+          "name": "营养快线",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "回复 2 点成绩并抽 1 张牌。饭点到了，先干一瓶。",
+          "tags": [
+            "干饭",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "heal",
+              "value": 2,
+              "target": "self"
+            },
+            {
+              "op": "draw",
+              "value": 1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_08.svg"
+        },
+        {
+          "id": "renle_09",
+          "name": "干儿子护驾",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "获得 3 层【面子护盾】并回复 1 点成绩。干儿子们一排站开。",
+          "tags": [
+            "防守",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "shield",
+              "value": 3,
+              "target": "self",
+              "duration": 2
+            },
+            {
+              "op": "heal",
+              "value": 1,
+              "target": "self"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_09.svg"
+        },
+        {
+          "id": "renle_10",
+          "name": "课间开黑",
+          "type": "support",
+          "cost": 0,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "抽 1 张牌；若你至少有 3 层【干儿子】，额外获得 1 点气势。",
+          "tags": [
+            "课间",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "draw",
+              "value": 1
+            },
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "followers",
+                "value": 3
+              },
+              "then": [
+                {
+                  "op": "gainMomentum",
+                  "value": 1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_10.svg"
+        },
+        {
+          "id": "renle_11",
+          "name": "带娃守家",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "获得 2 层【面子护盾】并回复 2 点成绩。守好家，娃才敢出去浪。",
+          "tags": [
+            "防守",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "shield",
+              "value": 2,
+              "target": "self",
+              "duration": 2
+            },
+            {
+              "op": "heal",
+              "value": 2,
+              "target": "self"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_11.svg"
+        },
+        {
+          "id": "renle_12",
+          "name": "人海战术",
+          "type": "support",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "获得 1 层【干儿子】，并从牌堆找 1 张专属牌加入手牌。",
+          "tags": [
+            "召唤",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "followers",
+              "value": 1,
+              "target": "self",
+              "duration": -1
+            },
+            {
+              "op": "searchDeck",
+              "value": 1,
+              "filter": "专属"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_12.svg"
+        },
+        {
+          "id": "renle_13",
+          "name": "复盘录像",
+          "type": "tactic",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "从弃牌堆回收 2 张牌。输了的局，也要认真复个盘。",
+          "tags": [
+            "复盘",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "recoverFromDiscard",
+              "value": 2
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_13.svg"
+        },
+        {
+          "id": "renle_14",
+          "name": "全员集合",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "二选一：复制本回合上一张牌的效果，或获得 1 层【干儿子】。",
+          "tags": [
+            "指挥",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "choose",
+              "prompt": "选一项",
+              "options": [
+                {
+                  "label": "复制上一张牌",
+                  "ops": [
+                    {
+                      "op": "copyLastCard"
+                    }
+                  ]
+                },
+                {
+                  "label": "再叫一个干儿子",
+                  "ops": [
+                    {
+                      "op": "applyStatus",
+                      "status": "followers",
+                      "value": 1,
+                      "target": "self",
+                      "duration": -1
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_14.svg"
+        },
+        {
+          "id": "renle_15",
+          "name": "开团信号",
+          "type": "tactic",
+          "cost": 0,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "亮出对手手牌并抽 1 张牌。开团之前，先看清对面站位。",
+          "tags": [
+            "开团",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "revealHand",
+              "target": "opp"
+            },
+            {
+              "op": "draw",
+              "value": 1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_15.svg"
+        },
+        {
+          "id": "renle_16",
+          "name": "六胎到齐",
+          "type": "support",
+          "cost": 3,
+          "momentum": 0,
+          "rarity": "epic",
+          "text": "+2 层【干儿子】。六个娃一起到齐，教室都坐不下。",
+          "tags": [
+            "召唤",
+            "后期"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "followers",
+              "value": 2,
+              "target": "self",
+              "duration": -1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_16.svg"
+        },
+        {
+          "id": "renle_17",
+          "name": "军团冲锋",
+          "type": "attack",
+          "cost": 3,
+          "momentum": 0,
+          "rarity": "epic",
+          "text": "造成 4 点打击；若你有至少 4 层【干儿子】回复 2 点，否则再获得 1 层。",
+          "tags": [
+            "召唤",
+            "后期"
+          ],
+          "ops": [
+            {
+              "op": "damage",
+              "value": 4,
+              "target": "opp"
+            },
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "followers",
+                "value": 4
+              },
+              "then": [
+                {
+                  "op": "heal",
+                  "value": 2,
+                  "target": "self"
+                }
+              ],
+              "else": [
+                {
+                  "op": "applyStatus",
+                  "status": "followers",
+                  "value": 1,
+                  "target": "self",
+                  "duration": -1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_17.svg"
+        },
+        {
+          "id": "renle_18",
+          "name": "全家福",
+          "type": "ult",
+          "cost": 1,
+          "momentum": 3,
+          "rarity": "epic",
+          "text": "+2 层【干儿子】；之后若你有 5 层以上，造成 5 点打击，否则 3 点。",
+          "tags": [
+            "召唤",
+            "大招"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "followers",
+              "value": 2,
+              "target": "self",
+              "duration": -1
+            },
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "self",
+                "status": "followers",
+                "value": 6
+              },
+              "then": [
+                {
+                  "op": "damage",
+                  "value": 5,
+                  "target": "opp"
+                }
+              ],
+              "else": [
+                {
+                  "op": "damage",
+                  "value": 3,
+                  "target": "opp"
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/renle_18.svg"
+        }
+      ]
+    },
+    {
+      "id": "yuhaitian",
+      "name": "于浩天",
+      "nickname": "大菠萝",
+      "gender": "男",
+      "tagline": "寸头一反光，方圆三排集体沉默。",
+      "desc": "八班体育委员，头圆、寸头、口齿不清，讲话需要同学现场翻译。上课时不时制造一点“生化事件”，是全班闻风丧胆的存在。",
+      "hpScoreStart": 10,
+      "energyMax": 3,
+      "momentumStart": 0,
+      "passive": {
+        "name": "寸头反光",
+        "text": "每回合开始给对手 1 层【尴尬】（本回合）：他的攻击卡 -1 强度。",
+        "trigger": "turnStart",
+        "ops": [
+          {
+            "op": "applyStatus",
+            "status": "cringe",
+            "value": 1,
+            "target": "opp",
+            "duration": 1
+          }
+        ]
+      },
+      "ult": {
+        "id": "yuhaitian_18",
+        "name": "全楼紧急疏散",
+        "type": "ult",
+        "cost": 1,
+        "momentum": 3,
+        "rarity": "epic",
+        "text": "对手有至少 3 层【臭气】时：5 点打击并回复 1 点；否则 3 点打击并给他 3 层。",
+        "tags": [
+          "臭气",
+          "大招"
+        ],
+        "ops": [
+          {
+            "op": "if",
+            "cond": {
+              "type": "statusAtLeast",
+              "who": "opp",
+              "status": "stink",
+              "value": 3
+            },
+            "then": [
+              {
+                "op": "damage",
+                "value": 5,
+                "target": "opp"
+              },
+              {
+                "op": "heal",
+                "value": 1,
+                "target": "self"
+              }
+            ],
+            "else": [
+              {
+                "op": "damage",
+                "value": 3,
+                "target": "opp"
+              },
+              {
+                "op": "applyStatus",
+                "status": "stink",
+                "value": 3,
+                "target": "opp",
+                "duration": -1
+              }
+            ]
+          }
+        ],
+        "count": 1,
+        "art": "art/cards/yuhaitian_18.svg"
+      },
+      "portrait": "art/portraits/yuhaitian.svg",
+      "icon": "art/icons/avatar-yuhaitian.svg",
+      "themeColor": "#5E9E4F",
+      "strategy": "用【臭气】慢慢磨，用【尴尬】削弱对手的攻击；偶尔熏到自己，就当自嘲。",
+      "decks": [
+        {
+          "id": "yuhaitian_01",
+          "name": "臭气领域",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "给对手 2 层【臭气】（2 回合）：每个回合结束让他 -2 成绩。",
+          "tags": [
+            "臭气",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "stink",
+              "value": 2,
+              "target": "opp",
+              "duration": 2
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_01.svg"
+        },
+        {
+          "id": "yuhaitian_02",
+          "name": "无声一响",
+          "type": "attack",
+          "cost": 0,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "造成 1 点打击，并给对手 1 层【臭气】。安静的课上，一声闷响。",
+          "tags": [
+            "臭气",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "damage",
+              "value": 1,
+              "target": "opp"
+            },
+            {
+              "op": "applyStatus",
+              "status": "stink",
+              "value": 1,
+              "target": "opp",
+              "duration": 2
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_02.svg"
+        },
+        {
+          "id": "yuhaitian_03",
+          "name": "生化武器",
+          "type": "attack",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "造成 1 点打击 + 2 层【臭气】（2 回合）；第一次用会熏到自己 -1 成绩。",
+          "tags": [
+            "臭气",
+            "自黑",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "stink",
+              "value": 2,
+              "target": "opp",
+              "duration": 2
+            },
+            {
+              "op": "damage",
+              "value": 1,
+              "target": "opp"
+            },
+            {
+              "op": "if",
+              "cond": {
+                "type": "not",
+                "cond": {
+                  "type": "flagAtLeast",
+                  "flag": "selfStink",
+                  "value": 1
+                }
+              },
+              "then": [
+                {
+                  "op": "addFlag",
+                  "flag": "selfStink",
+                  "value": 1
+                },
+                {
+                  "op": "damage",
+                  "value": 1,
+                  "target": "self"
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_03.svg"
+        },
+        {
+          "id": "yuhaitian_04",
+          "name": "寸头反光",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "给对手 2 层【尴尬】（2 回合）：他的攻击卡 -2 强度。寸头一低，反光直射。",
+          "tags": [
+            "寸头",
+            "梗",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "cringe",
+              "value": 1,
+              "target": "opp",
+              "duration": 2
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_04.svg"
+        },
+        {
+          "id": "yuhaitian_05",
+          "name": "尴尬气场",
+          "type": "attack",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "造成 1 点打击，并给对手 1 层【尴尬】（3 回合）。他尴尬，我出手。",
+          "tags": [
+            "尴尬",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "damage",
+              "value": 1,
+              "target": "opp"
+            },
+            {
+              "op": "applyStatus",
+              "status": "cringe",
+              "value": 1,
+              "target": "opp",
+              "duration": 2
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_05.svg"
+        },
+        {
+          "id": "yuhaitian_06",
+          "name": "连环臭气",
+          "type": "attack",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "重复两次：造成 1 点打击并给对手 1 层【臭气】。一波未平一波又起。",
+          "tags": [
+            "臭气",
+            "核心"
+          ],
+          "ops": [
+            {
+              "op": "repeat",
+              "times": 2,
+              "ops": [
+                {
+                  "op": "damage",
+                  "value": 1,
+                  "target": "opp"
+                },
+                {
+                  "op": "applyStatus",
+                  "status": "stink",
+                  "value": 1,
+                  "target": "opp",
+                  "duration": 3
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_06.svg"
+        },
+        {
+          "id": "yuhaitian_07",
+          "name": "体委袖标",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "获得 3 层【面子护盾】并回复 1 点成绩。袖标一戴，面子就有了。",
+          "tags": [
+            "体委",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "shield",
+              "value": 2,
+              "target": "self",
+              "duration": 2
+            },
+            {
+              "op": "heal",
+              "value": 1,
+              "target": "self"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_07.svg"
+        },
+        {
+          "id": "yuhaitian_08",
+          "name": "假装路过",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "二选一：回复 2 点成绩，或抽 1 张牌并清除自己的【尴尬】。",
+          "tags": [
+            "路过",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "choose",
+              "prompt": "选一项",
+              "options": [
+                {
+                  "label": "假装路过：回复 2 点成绩",
+                  "ops": [
+                    {
+                      "op": "heal",
+                      "value": 2,
+                      "target": "self"
+                    }
+                  ]
+                },
+                {
+                  "label": "顺便听听：抽 1 张牌并清除【尴尬】",
+                  "ops": [
+                    {
+                      "op": "draw",
+                      "value": 1
+                    },
+                    {
+                      "op": "clearStatus",
+                      "status": "cringe",
+                      "target": "self"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_08.svg"
+        },
+        {
+          "id": "yuhaitian_09",
+          "name": "搭讪失败",
+          "type": "tactic",
+          "cost": 0,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "亮出对手手牌并抽 1 张牌。学姐回了个“嗯”，然后就没有然后了。",
+          "tags": [
+            "搭讪",
+            "梗",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "revealHand",
+              "target": "opp"
+            },
+            {
+              "op": "draw",
+              "value": 1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_09.svg"
+        },
+        {
+          "id": "yuhaitian_10",
+          "name": "全班都闻到了",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "若对手有至少 2 层【臭气】，再给他 2 层；否则给他 1 层。",
+          "tags": [
+            "臭气",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "opp",
+                "status": "stink",
+                "value": 2
+              },
+              "then": [
+                {
+                  "op": "applyStatus",
+                  "status": "stink",
+                  "value": 2,
+                  "target": "opp",
+                  "duration": 2
+                }
+              ],
+              "else": [
+                {
+                  "op": "applyStatus",
+                  "status": "stink",
+                  "value": 2,
+                  "target": "opp",
+                  "duration": 2
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_10.svg"
+        },
+        {
+          "id": "yuhaitian_11",
+          "name": "含糊战术",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "抽 1 张牌并获得 1 点气势。他讲战术，队友只能疯狂点头。",
+          "tags": [
+            "口音",
+            "梗",
+            "辅助"
+          ],
+          "ops": [
+            {
+              "op": "draw",
+              "value": 1
+            },
+            {
+              "op": "gainMomentum",
+              "value": 1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_11.svg"
+        },
+        {
+          "id": "yuhaitian_12",
+          "name": "报告班主任",
+          "type": "tactic",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "对手有【干儿子】时全部清空并抽 1 张；否则让他随机弃 1 张。",
+          "tags": [
+            "办公室",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "opp",
+                "status": "followers",
+                "value": 1
+              },
+              "then": [
+                {
+                  "op": "clearStatus",
+                  "status": "followers",
+                  "target": "opp"
+                },
+                {
+                  "op": "draw",
+                  "value": 1
+                }
+              ],
+              "else": [
+                {
+                  "op": "discard",
+                  "value": 1,
+                  "target": "opp"
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_12.svg"
+        },
+        {
+          "id": "yuhaitian_13",
+          "name": "复读机",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "复制本回合上一张牌的效果；没出过牌则抽 1 张。你说啥？他再说一遍。",
+          "tags": [
+            "口音",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "flagAtLeast",
+                "flag": "playedCardThisTurn",
+                "value": 1
+              },
+              "then": [
+                {
+                  "op": "copyLastCard"
+                }
+              ],
+              "else": [
+                {
+                  "op": "draw",
+                  "value": 1
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_13.svg"
+        },
+        {
+          "id": "yuhaitian_14",
+          "name": "体委小黑本",
+          "type": "support",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "rare",
+          "text": "给对手 1 层【被记名】（2 回合）：你打他 +1 强度，并抽 1 张牌。",
+          "tags": [
+            "记名",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "applyStatus",
+              "status": "mark",
+              "value": 1,
+              "target": "opp",
+              "duration": 2
+            },
+            {
+              "op": "draw",
+              "value": 1
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_14.svg"
+        },
+        {
+          "id": "yuhaitian_15",
+          "name": "办公室一日游",
+          "type": "tactic",
+          "cost": 1,
+          "momentum": 0,
+          "rarity": "common",
+          "text": "让对手下一张牌无效。班主任一招手，办公室的门就开了。",
+          "tags": [
+            "办公室",
+            "工具"
+          ],
+          "ops": [
+            {
+              "op": "cancelNext",
+              "target": "opp"
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_15.svg"
+        },
+        {
+          "id": "yuhaitian_16",
+          "name": "生化风暴",
+          "type": "attack",
+          "cost": 2,
+          "momentum": 0,
+          "rarity": "epic",
+          "text": "造成 3 点打击，并给对手 1 层【臭气】（3 回合）。全班都知道是你。",
+          "tags": [
+            "臭气",
+            "后期"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "opp",
+                "status": "stink",
+                "value": 3
+              },
+              "then": [
+                {
+                  "op": "damage",
+                  "value": 3,
+                  "target": "opp"
+                }
+              ],
+              "else": [
+                {
+                  "op": "damage",
+                  "value": 3,
+                  "target": "opp"
+                }
+              ]
+            },
+            {
+              "op": "applyStatus",
+              "status": "stink",
+              "value": 1,
+              "target": "opp",
+              "duration": 3
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_16.svg"
+        },
+        {
+          "id": "yuhaitian_17",
+          "name": "臭气反弹",
+          "type": "attack",
+          "cost": 3,
+          "momentum": 0,
+          "rarity": "epic",
+          "text": "造成 2 点打击 + 2 层【臭气】（3 回合）；第一次用会反弹到自己 -1 成绩。",
+          "tags": [
+            "臭气",
+            "自黑",
+            "后期"
+          ],
+          "ops": [
+            {
+              "op": "damage",
+              "value": 2,
+              "target": "opp"
+            },
+            {
+              "op": "applyStatus",
+              "status": "stink",
+              "value": 2,
+              "target": "opp",
+              "duration": 3
+            },
+            {
+              "op": "if",
+              "cond": {
+                "type": "not",
+                "cond": {
+                  "type": "flagAtLeast",
+                  "flag": "selfBack",
+                  "value": 1
+                }
+              },
+              "then": [
+                {
+                  "op": "addFlag",
+                  "flag": "selfBack",
+                  "value": 1
+                },
+                {
+                  "op": "damage",
+                  "value": 2,
+                  "target": "self"
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_17.svg"
+        },
+        {
+          "id": "yuhaitian_18",
+          "name": "全楼紧急疏散",
+          "type": "ult",
+          "cost": 1,
+          "momentum": 3,
+          "rarity": "epic",
+          "text": "对手有至少 3 层【臭气】时：5 点打击并回复 1 点；否则 3 点打击并给他 3 层。",
+          "tags": [
+            "臭气",
+            "大招"
+          ],
+          "ops": [
+            {
+              "op": "if",
+              "cond": {
+                "type": "statusAtLeast",
+                "who": "opp",
+                "status": "stink",
+                "value": 3
+              },
+              "then": [
+                {
+                  "op": "damage",
+                  "value": 4,
+                  "target": "opp"
+                },
+                {
+                  "op": "heal",
+                  "value": 1,
+                  "target": "self"
+                }
+              ],
+              "else": [
+                {
+                  "op": "damage",
+                  "value": 3,
+                  "target": "opp"
+                },
+                {
+                  "op": "applyStatus",
+                  "status": "stink",
+                  "value": 3,
+                  "target": "opp",
+                  "duration": 3
+                }
+              ]
+            }
+          ],
+          "count": 1,
+          "art": "art/cards/yuhaitian_18.svg"
+        }
+      ]
+    }
+  ],
+  "secondPlayerBonusCard": 1,
+  "firstMomentumBonus": false,
+  "statusCaps": {
+    "stink": 3,
+    "followers": 5,
+    "spotlight": 3,
+    "tilt": 3,
+    "mark": 3,
+    "bandage": 4,
+    "shield": 6,
+    "sao": 3,
+    "hype": 3
+  }
+}

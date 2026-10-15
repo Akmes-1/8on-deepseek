@@ -1,0 +1,166 @@
+{
+  "version": 2,
+  "name": "八班风云 · 设计令牌（UI 设计 + 贴图共用）",
+  "source": "colors/fonts/radii/shadows/durations 供 UI 与动效使用（docs/ui-design.md、data/animations.json）；palette/accent/characters/cards 为 art/ 目录全部 SVG 的配色来源，由 src/tokens.js 注入 CSS 变量",
+
+  "colors": {
+    "bg": "#22362F",
+    "bgAlt": "#2F4A43",
+    "panel": "#FBF7EC",
+    "panelLine": "#9FB6CF",
+    "ink": "#23324F",
+    "inkDim": "#4A5C7A",
+    "chalk": "#EAF2F8",
+    "accent": "#5BAAE0",
+    "accentAlt": "#F0913F",
+    "danger": "#E4574C",
+    "success": "#3FA45B",
+    "warning": "#F7C948",
+    "char1": "#3FA45B",
+    "char2": "#F07FA8",
+    "char3": "#7A5AD1",
+    "char4": "#F7C948"
+  },
+
+  "fonts": {
+    "display": "\"Segoe Print\", \"Chalkboard SE\", \"Kaiti SC\", KaiTi, STKaiti, \"PingFang SC\", \"Microsoft YaHei\", sans-serif",
+    "body": "system-ui, -apple-system, \"Segoe UI\", \"PingFang SC\", \"Hiragino Sans GB\", \"Microsoft YaHei\", sans-serif",
+    "mono": "ui-monospace, \"Cascadia Mono\", Consolas, \"SFMono-Regular\", Menlo, monospace"
+  },
+  "fontSizes": {
+    "xs": "12px",
+    "sm": "14px",
+    "md": "16px",
+    "lg": "20px",
+    "xl": "28px",
+    "xxl": "40px"
+  },
+  "radii": {
+    "sm": "6px",
+    "md": "12px",
+    "lg": "20px",
+    "card": "14px"
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "16px",
+    "lg": "24px",
+    "xl": "40px"
+  },
+  "shadows": {
+    "card": "0 6px 18px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.55)",
+    "panel": "0 10px 30px rgba(0,0,0,.35)",
+    "glow": "0 0 22px rgba(247,201,72,.55)"
+  },
+  "durations": {
+    "fast": "120ms",
+    "normal": "220ms",
+    "slow": "420ms",
+    "banner": "900ms"
+  },
+  "easings": {
+    "out": "cubic-bezier(.22,.9,.25,1)",
+    "pop": "cubic-bezier(.34,1.56,.64,1)",
+    "soft": "cubic-bezier(.4,0,.2,1)"
+  },
+  "battlefield": {
+    "handCardWidth": "142px",
+    "handCardHeight": "176px",
+    "portraitSize": "160px",
+    "scoreBarHeight": "22px"
+  },
+
+  "contrast": {
+    "rule": "正文只用 ink / inkDim（纸面）与 chalk / chalkDust（黑板），全部 ≥ 4.5:1；danger / success / warning / accent 与 char1~char4 只作填充、描边、图标与色块，其上的文字改用 panel 或 ink。",
+    "ink_on_panel": 11.96,
+    "inkDim_on_panel": 6.32,
+    "chalk_on_bg": 11.34,
+    "chalk_on_bgAlt": 8.51,
+    "chalkDust_on_bg": 9.34,
+    "panel_on_bg": 11.99,
+    "panelLine_on_panel": 1.95
+  },
+  "contrastNotes": {
+    "panelLine": "1.95:1 只用于纸面格线，不承载信息；卡框与可交互边界改用 inkDim（6.32:1）或 2px 实线。",
+    "charColors": "char1~char4 与贴图 characters.*.primary 完全一致；作为文字时只允许出现在其本色的浅底（同色 12% 透明）上，或改用 ink。",
+    "warningVsChar4": "warning 与 char4 同为 #F7C948（便利贴黄 / 菠萝黄），语义不同来源相同，UI 上靠球衣号码与图标形状区分。"
+  },
+
+  "style": {
+    "render": "flat-cartoon-sketch",
+    "strokeWidth": { "icon": 7, "portrait": 5.5, "avatar": 6, "ui": 4, "card": 5 },
+    "strokeLinejoin": "round",
+    "strokeLinecap": "round",
+    "note": "扁平卡通 + 粗描边，色块明快，禁止写实/恐怖"
+  },
+  "palette": {
+    "ink": "#23324F",
+    "inkSoft": "#4A5C7A",
+    "paper": "#FBF7EC",
+    "paperLine": "#9FB6CF",
+    "chalk": "#EAF2F8",
+    "blackboard": "#2F4A43",
+    "blackboardDark": "#22362F",
+    "chalkDust": "#CFE0D6"
+  },
+  "accent": {
+    "red": "#E4574C",
+    "orange": "#F0913F",
+    "yellow": "#F7C948",
+    "green": "#3FA45B",
+    "greenDeep": "#2E7D46",
+    "sky": "#5BAAE0",
+    "blue": "#3D7BD9",
+    "purple": "#7A5AD1",
+    "purpleDeep": "#5B3FB0",
+    "pink": "#F07FA8",
+    "brown": "#8A6A4B",
+    "gold": "#F2C14E",
+    "skin": "#F6D2B4",
+    "skinShade": "#E2B08A"
+  },
+  "characters": {
+    "zhangkaiyao": {
+      "alias": "骚哥",
+      "primary": "#3FA45B",
+      "secondary": "#FFFFFF",
+      "accent": "#E4574C",
+      "hair": "#2B2118",
+      "skin": "#F6D2B4",
+      "marks": ["绿白条纹7号球衣", "吐舌", "足球", "实况手柄"]
+    },
+    "liuzijia": {
+      "alias": "演员",
+      "primary": "#F07FA8",
+      "secondary": "#7A5AD1",
+      "accent": "#5BAAE0",
+      "hair": "#4A3226",
+      "skin": "#F9DAC2",
+      "marks": ["长直发+蝴蝶结", "多处创可贴", "请假条折扇", "奶茶杯"]
+    },
+    "renle": {
+      "alias": "妈妈 / 猪乐子",
+      "primary": "#7A5AD1",
+      "secondary": "#F2C14E",
+      "accent": "#3D7BD9",
+      "hair": "#2B2118",
+      "skin": "#F6D2B4",
+      "marks": ["紫色发箍", "横屏手机", "干儿子剪影军团", "指挥手势"]
+    },
+    "yuhaitian": {
+      "alias": "大菠萝",
+      "primary": "#F7C948",
+      "secondary": "#E4574C",
+      "accent": "#8FBF6A",
+      "hair": "#8A6A4B",
+      "skin": "#F6D2B4",
+      "marks": ["极短寸头圆头", "体委红袖标", "菠萝", "卡通绿色臭气云"]
+    }
+  },
+  "cards": {
+    "typeColors": { "attack": "#E4574C", "tactic": "#5BAAE0", "support": "#3FA45B", "ult": "#F7C948" },
+    "rarityColors": { "common": "#9FB6CF", "rare": "#3D7BD9", "epic": "#7A5AD1" },
+    "side": { "self": "#3FA45B", "opp": "#E4574C" }
+  }
+}

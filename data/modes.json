@@ -1,0 +1,208 @@
+{
+  "version": 1,
+  "modes": [
+    {
+      "id": "tutorial",
+      "name": "新手教程",
+      "tagline": "三分钟学会出牌",
+      "desc": "一步步教你精力、气势、大招和状态结算。",
+      "order": 1,
+      "unlocked": true,
+      "entry": "#mode-tutorial",
+      "steps": [
+        {
+          "id": "t1",
+          "teach": "认识成绩条",
+          "say": "这条是你的成绩：满 20 分直接赢，掉到 0 分就输。",
+          "highlight": "#my-score-bar",
+          "allow": "tap",
+          "setup": { "myScore": 10, "foeScore": 10, "myEnergy": 3, "myMomentum": 0, "myHand": ["zhangkaiyao_02"], "foeHand": 2 },
+          "completeOn": { "type": "tap", "target": "#my-score-bar" }
+        },
+        {
+          "id": "t2",
+          "teach": "出一张打击牌",
+          "say": "点手牌就能出牌，先给对手一记【食堂冲刺】。",
+          "highlight": "#hand",
+          "allow": "playCard",
+          "setup": { "myScore": 10, "foeScore": 10, "myEnergy": 3, "myMomentum": 0, "myHand": ["common_07"], "foeHand": 2 },
+          "completeOn": { "type": "playCard", "cardId": "common_07" }
+        },
+        {
+          "id": "t3",
+          "teach": "精力用尽",
+          "say": "只剩 1 点精力，出一张就没了——看另一张牌变灰。",
+          "highlight": "#my-energy",
+          "allow": "playCard",
+          "setup": { "myScore": 10, "foeScore": 8, "myEnergy": 1, "myMomentum": 0, "myHand": ["zhangkaiyao_02", "zhangkaiyao_05"], "foeHand": 2 },
+          "completeOn": { "type": "playCard", "cardId": "zhangkaiyao_02" }
+        },
+        {
+          "id": "t4",
+          "teach": "结束回合",
+          "say": "不想出牌了就点【铃响收尾】，把回合交给对手。",
+          "highlight": "#btn-end",
+          "allow": "endTurn",
+          "setup": { "myScore": 10, "foeScore": 6, "myEnergy": 3, "myMomentum": 1, "myHand": ["common_04"], "foeHand": 2 },
+          "completeOn": { "type": "endTurn" }
+        },
+        {
+          "id": "t5",
+          "teach": "抽牌",
+          "say": "抽牌才有得选。这张【课间十分钟】一次抽 2 张。",
+          "highlight": "#hand",
+          "allow": "playCard",
+          "setup": { "myScore": 10, "foeScore": 6, "myEnergy": 3, "myMomentum": 2, "myHand": ["common_05"], "foeHand": 3 },
+          "completeOn": { "type": "playCard", "cardId": "common_05" }
+        },
+        {
+          "id": "t6",
+          "teach": "用一张助攻 / 防御牌",
+          "say": "助攻牌能回成绩、加【面子】。试试【人墙防守】。",
+          "highlight": "#my-status",
+          "allow": "playCard",
+          "setup": { "myScore": 8, "foeScore": 6, "myEnergy": 3, "myMomentum": 2, "myHand": ["zhangkaiyao_08"], "foeHand": 3 },
+          "completeOn": { "type": "playCard", "cardId": "zhangkaiyao_08" }
+        },
+        {
+          "id": "t7",
+          "teach": "攒气势",
+          "say": "气势每回合 +1，攒够 3 点才能放大招。",
+          "highlight": "#my-momentum",
+          "allow": "playCard",
+          "setup": { "myScore": 9, "foeScore": 6, "myEnergy": 3, "myMomentum": 1, "myHand": ["zhangkaiyao_09"], "foeHand": 3 },
+          "completeOn": { "type": "playCard", "cardId": "zhangkaiyao_09" }
+        },
+        {
+          "id": "t8",
+          "teach": "攒气势放大招",
+          "say": "气势 3 点，放【帽子戏法】——一局只有一次。",
+          "highlight": "#hand",
+          "allow": "playCard",
+          "setup": { "myScore": 9, "foeScore": 12, "myEnergy": 3, "myMomentum": 3, "myHand": ["zhangkaiyao_18"], "foeHand": 3 },
+          "completeOn": { "type": "playCard", "cardType": "ult" }
+        },
+        {
+          "id": "t9",
+          "teach": "认识状态",
+          "say": "打出【广播体操】，你会拿到 2 层【状态不错】。",
+          "highlight": "#my-status",
+          "allow": "playCard",
+          "setup": { "myScore": 10, "foeScore": 8, "myEnergy": 3, "myMomentum": 3, "myHand": ["common_09"], "foeHand": 3 },
+          "completeOn": { "type": "playCard", "cardId": "common_09" }
+        },
+        {
+          "id": "t10",
+          "teach": "状态在回合结束结算",
+          "say": "点铃响收尾：【状态不错】加你的分，【臭气】扣对手的分。",
+          "highlight": "#btn-end",
+          "allow": "endTurn",
+          "setup": {
+            "myScore": 12, "foeScore": 8, "myEnergy": 3, "myMomentum": 3,
+            "myHand": ["common_04"], "foeHand": 2,
+            "myStatus": { "buff": 2 }, "foeStatus": { "stink": 2 }
+          },
+          "completeOn": { "type": "endTurn" }
+        },
+        {
+          "id": "t11",
+          "teach": "学会看对手手牌数",
+          "say": "数对手手牌，就知道他还剩多少弹药。【边裁举旗】直接亮牌。",
+          "highlight": "#foe-side",
+          "allow": "playCard",
+          "setup": { "myScore": 14, "foeScore": 12, "myEnergy": 3, "myMomentum": 2, "myHand": ["zhangkaiyao_11"], "foeHand": 6 },
+          "completeOn": { "type": "playCard", "cardId": "zhangkaiyao_11" }
+        },
+        {
+          "id": "t12",
+          "teach": "收尾一击",
+          "say": "对手只剩 4 分，用【食堂冲刺】把他打到 3 分以下。",
+          "highlight": "#foe-score-bar",
+          "allow": "playCard",
+          "setup": { "myScore": 16, "foeScore": 4, "myEnergy": 3, "myMomentum": 1, "myHand": ["common_07"], "foeHand": 2 },
+          "completeOn": { "type": "scoreBelow", "who": "opp", "value": 3 }
+        },
+        {
+          "id": "t13",
+          "teach": "通关",
+          "say": "教程结束！出牌、精力、气势、大招、状态结算，你都会了。",
+          "highlight": "#my-score-bar",
+          "allow": "any",
+          "setup": { "myScore": 16, "foeScore": 5, "myEnergy": 0, "myMomentum": 5, "myHand": [], "foeHand": 2 },
+          "completeOn": { "type": "next" }
+        }
+      ]
+    },
+    {
+      "id": "story",
+      "name": "剧情模式",
+      "tagline": "三段课间故事",
+      "desc": "三段课间故事，边玩边学。",
+      "order": 2,
+      "unlocked": true,
+      "unlockedAfter": "tutorial",
+      "entry": "#mode-story",
+      "dataFile": "data/story.json"
+    },
+    {
+      "id": "endless",
+      "name": "无尽模式",
+      "tagline": "连胜越多，对手越凶",
+      "desc": "自己挑人打，连胜越多对手越凶。",
+      "order": 3,
+      "unlocked": true,
+      "entry": "#mode-endless"
+    }
+  ],
+  "tutorial": {
+    "player": "zhangkaiyao",
+    "rival": "yuhaitian",
+    "passive": false,
+    "setupTiming": "playerActionWindow",
+    "openingHand": ["common_07", "zhangkaiyao_02", "common_05", "zhangkaiyao_08"],
+    "deckOrder": ["common_09", "zhangkaiyao_09", "common_04", "zhangkaiyao_11", "zhangkaiyao_18", "zhangkaiyao_08", "common_07", "common_05"],
+    "foeDeckOrder": ["yuhaitian_02", "yuhaitian_07", "yuhaitian_01"],
+    "foeOpeningHand": 2,
+    "aiHandicap": { "maxCardsPerTurn": 1, "aiThreshold": 2.6 },
+    "winCondition": "把对手成绩打到 0 分",
+    "onFinish": { "key": "baban_tutorial_done", "value": "done", "next": "story" }
+  },
+  "story": {
+    "dataFile": "data/story.json",
+    "player": "choose",
+    "playerDefault": "liuzijia",
+    "playerKey": "baban_story_player",
+    "selectable": true,
+    "allowMirror": true,
+    "playerFieldFallback": "player",
+    "stageCount": 3,
+    "encounterCount": 6,
+    "retry": { "onLose": "retryEncounter", "hintAfterAttempts": 2, "hint": "要不要先回教程关练一下？提示：助攻牌和状态都很值钱。" },
+    "settle": { "show": ["winLine", "loseLine", "outro", "reward.text", "teach"], "buttons": ["下一关", "重打本关", "回大地图"] },
+    "progressKey": "baban_story_progress",
+    "progressShape": {
+      "version": 1,
+      "lastStage": "stage1",
+      "stages": { "stage1": { "cleared": false, "encounter": 0, "attempts": 0, "clearedAt": 0 } }
+    }
+  },
+  "endless": {
+    "winStreakKey": "baban_endless_streak",
+    "bestStreakKey": "baban_endless_best",
+    "difficultyMode": "curve",
+    "bossEvery": 3,
+    "bossBonus": { "foeExtraDraw": 1, "foeStartStatus": { "hype": 1 }, "labelPrefix": "强化对手 · " },
+    "difficultyCurve": [
+      { "wins": 0, "label": "热身", "aiThreshold": 1.1, "foeBonusScore": 0, "foeExtraDraw": 0, "foeStartMomentum": 0 },
+      { "wins": 2, "label": "开始来劲", "aiThreshold": 0.8, "foeBonusScore": 1, "foeExtraDraw": 0, "foeStartMomentum": 0 },
+      { "wins": 4, "label": "有点意思", "aiThreshold": 0.55, "foeBonusScore": 2, "foeExtraDraw": 0, "foeStartMomentum": 1 },
+      { "wins": 6, "label": "年级前十", "aiThreshold": 0.35, "foeBonusScore": 3, "foeExtraDraw": 1, "foeStartMomentum": 1 },
+      { "wins": 8, "label": "教导主任", "aiThreshold": 0.15, "foeBonusScore": 4, "foeExtraDraw": 1, "foeStartMomentum": 2 },
+      { "wins": 10, "label": "八班传说", "aiThreshold": 0, "foeBonusScore": 5, "foeExtraDraw": 2, "foeStartMomentum": 2 }
+    ]
+  },
+  "keys": {
+    "storyProgress": "baban_story_progress",
+    "modeSeen": "baban_tutorial_done"
+  }
+}

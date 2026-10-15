@@ -1,0 +1,381 @@
+/* ============================================================
+   卡牌组件：便利贴 / 作业本纸质感
+   ============================================================ */
+
+.card {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--hand-card-w);
+  height: var(--hand-card-h);
+  border-radius: var(--r-card);
+  background:
+    repeating-linear-gradient(180deg, transparent 0 21px, rgba(159, 182, 207, 0.35) 21px 22px),
+    linear-gradient(160deg, #FFFDF6 0%, #FBF3DF 100%);
+  border: 3px solid rgba(35, 50, 79, 0.35);
+  box-shadow: var(--shadow-card);
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+  transform-origin: 50% 120%;
+  transition: transform var(--d-normal) var(--ease-out), box-shadow var(--d-normal), filter var(--d-normal);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  will-change: transform;
+}
+
+/* 手牌扇形排布：由 JS 写入 --fan 与 --lift */
+.hand .card { --fan: 0deg; --lift: 0px; transform: rotate(var(--fan)) translateY(var(--lift)); }
+.hand .card:hover,
+.hand .card:focus-visible {
+  transform: rotate(0deg) translateY(-26px) scale(1.06);
+  z-index: 20;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.45), 0 0 0 3px var(--card-accent, var(--c-accent)) inset;
+  outline: none;
+}
+.hand .card.is-unplayable { filter: grayscale(0.55) brightness(0.9); }
+/* 不能出牌时压一条说明（用 JS 写进 data-reason，具体是缺精力还是缺气势） */
+.hand .card.is-unplayable::after {
+  content: attr(data-reason);
+  position: absolute;
+  inset: auto 0 42% 0;
+  text-align: center;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: #7A2A24;
+  background: rgba(255, 241, 240, 0.92);
+  border-top: 1px dashed rgba(122, 42, 36, 0.4);
+  border-bottom: 1px dashed rgba(122, 42, 36, 0.4);
+  padding: 2px 0;
+}
+.hand .card.is-selected { transform: rotate(0deg) translateY(-34px) scale(1.08); z-index: 21; }
+.hand .card.is-new { animation: card-deal var(--d-slow) var(--ease-pop); }
+
+/* 已选中（点了一下，等待再点一下出招）：抬起来 + 一圈发光，顶上挂个提示条 */
+.hand .card.is-picked {
+  transform: rotate(0deg) translateY(-40px) scale(1.1);
+  z-index: 30;
+  box-shadow: 0 20px 38px rgba(0, 0, 0, 0.5),
+              0 0 0 4px var(--card-accent, var(--c-accent)),
+              0 0 26px rgba(247, 201, 72, 0.55);
+}
+/* 卡面 v2 用的是四角嵌框，圆角很小，所以可以放行溢出，让提示条挂在卡片外面 */
+.card.cv2-card { overflow: visible; }
+.card.cv2-card .cv2-art { border-radius: 0; }
+.card.cv2-card .cv2-band { border-radius: 0 0 var(--r-sm, 6px) var(--r-sm, 6px); }
+.hand .card.is-picked::before {
+  content: attr(data-hint);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  color: #22362F;
+  background: var(--yellow, #F7C948);
+  border: 2px solid rgba(35, 50, 79, 0.5);
+  border-radius: 999px;
+  padding: 3px 10px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+  animation: picked-hint-bob 1.1s var(--ease-soft, ease-in-out) infinite;
+  pointer-events: none;
+}
+@keyframes picked-hint-bob {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hand .card.is-picked::before { animation: none; }
+}
+/* 手机：卡片窄，提示条用更小的字，避免超出屏幕 */
+@media (max-width: 620px) {
+  .hand .card.is-picked::before { font-size: 10px; padding: 2px 8px; }
+}
+
+/* 卡头：类型色带 */
+.card__band {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 7px;
+  background: var(--card-accent, var(--c-accent));
+  color: #FFFDF6;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid rgba(35, 50, 79, 0.35);
+  white-space: nowrap;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+.card__band .icon-mask { background: #FFFDF6; }
+.card--ult .card__band .icon-mask { background: #3A2A08; }
+.card__cost {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: 999px;
+  padding: 0 6px;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+.card__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  line-height: 1.15;
+  padding: 5px 8px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+.card__art {
+  position: relative;
+  margin: 4px 8px 2px;
+  height: 74px;
+  border-radius: var(--r-sm);
+  background: rgba(91, 170, 224, 0.1);
+  border: 1px dashed rgba(35, 50, 79, 0.25);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+.card__art img { width: 100%; height: 100%; object-fit: contain; }
+.card__art-fallback {
+  font-family: var(--font-display);
+  font-size: 34px;
+  color: rgba(35, 50, 79, 0.35);
+}
+.card__text {
+  flex: 1;
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  padding: 2px 8px 4px;
+  overflow: hidden;
+  color: #2B3A55;
+}
+.card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 8px 6px;
+  font-size: 11px;
+  color: var(--ink-soft);
+  border-top: 1px dotted rgba(35, 50, 79, 0.25);
+}
+.card__tags { display: inline-flex; gap: 4px; }
+.card__tag { background: rgba(35, 50, 79, 0.08); border-radius: 4px; padding: 0 4px; }
+.card__type-icon { width: 18px; height: 18px; opacity: 0.75; }
+
+/* 稀有度描边 */
+.card--rare { border-color: var(--blue); }
+.card--epic { border-color: var(--purple); box-shadow: var(--shadow-card), 0 0 0 2px rgba(122, 90, 209, 0.25); }
+.card--ult {
+  border-color: var(--yellow);
+  background:
+    repeating-linear-gradient(180deg, transparent 0 21px, rgba(159, 182, 207, 0.3) 21px 22px),
+    linear-gradient(160deg, #FFF8DC 0%, #FFE9B0 100%);
+  box-shadow: var(--shadow-card), 0 0 18px rgba(247, 201, 72, 0.55);
+}
+.card--ult .card__band { background: linear-gradient(90deg, var(--orange), var(--yellow)); color: #3A2A08; }
+
+/* 需要气势的大招：显示气势需求（挂在卡面右侧中部，避开费用胶囊） */
+.card__momentum {
+  position: absolute;
+  top: 30px;
+  right: 5px;
+  background: rgba(247, 201, 72, 0.95);
+  color: #3A2A08;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  padding: 0 6px;
+  border: 2px solid rgba(35, 50, 79, 0.4);
+  z-index: 2;
+  white-space: nowrap;
+}
+
+/* ---------------- 打出的牌（战场展示） ---------------- */
+.played-card {
+  width: 104px;
+  height: 142px;
+  border-radius: var(--r-card);
+  background: linear-gradient(160deg, #FFFDF6, #FBF3DF);
+  border: 3px solid var(--card-accent, var(--c-accent));
+  color: var(--ink);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px;
+  font-size: var(--fs-xs);
+  text-align: center;
+  gap: 4px;
+  animation: card-slam var(--d-slow) var(--ease-pop);
+}
+.played-card img { width: 44px; height: 44px; object-fit: contain; }
+.played-card b { font-family: var(--font-display); font-size: var(--fs-sm); line-height: 1.1; }
+.played-card--foe { border-color: var(--c-rival); }
+.played-card--spent { animation: card-fade 1.4s var(--ease-soft) forwards; }
+
+/* 对手手牌（牌背） */
+.foe-hand { display: flex; gap: -10px; }
+.foe-hand .card-mini {
+  width: 42px;
+  height: 60px;
+  border-radius: 6px;
+  border: 2px solid rgba(251, 247, 236, 0.35);
+  background: linear-gradient(160deg, #33544B, #22362F);
+  margin-left: -10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  transition: transform var(--d-normal) var(--ease-out);
+}
+.foe-hand .card-mini:first-child { margin-left: 0; }
+.foe-hand .card-mini.is-revealed {
+  background: linear-gradient(160deg, #FFFDF6, #FBF3DF);
+  border-color: var(--yellow);
+  color: var(--ink);
+  font-size: 9px;
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  text-align: center;
+  line-height: 1.05;
+}
+
+/* 牌堆抽牌动画用的飞行卡 */
+.flying-card {
+  position: fixed;
+  z-index: 70;
+  width: var(--hand-card-w);
+  height: var(--hand-card-h);
+  pointer-events: none;
+  border-radius: var(--r-card);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================================
+   手牌区：横向滚动 + 卡面加宽（手机上文字才看得清）
+   ============================================================ */
+.hand-zone { --hand-card-w: 168px; --hand-card-h: 222px; }
+
+.hand {
+  overflow-x: auto;
+  overflow-y: hidden;
+  justify-content: safe center;
+  padding: 20px 6px 4px;
+  scrollbar-width: thin;
+  scroll-snap-type: x proximity;
+}
+.hand .card { scroll-snap-align: center; }
+.hand::-webkit-scrollbar { height: 8px; }
+.hand::-webkit-scrollbar-thumb { background: rgba(251, 247, 236, 0.3); border-radius: 4px; }
+
+@media (max-width: 1200px) {
+  .hand-zone { --hand-card-w: 156px; --hand-card-h: 210px; }
+}
+@media (max-width: 900px) {
+  .hand-zone { --hand-card-w: 148px; --hand-card-h: 204px; }
+}
+@media (max-width: 620px) {
+  .hand-zone { --hand-card-w: 136px; --hand-card-h: 194px; }
+}
+
+/* ============================================================
+   卡池图鉴（选人页 / 对局中打开）
+   ============================================================ */
+.dialog--pool {
+  width: min(1360px, 96vw);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  padding: var(--sp-md) var(--sp-lg) var(--sp-lg);
+}
+
+.pool-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--sp-md);
+  align-items: center;
+  border-bottom: 2px dashed rgba(35, 50, 79, 0.2);
+  padding-bottom: var(--sp-sm);
+}
+.pool-who { display: flex; align-items: center; gap: var(--sp-sm); }
+.pool-portrait {
+  width: 64px; height: 64px; border-radius: 50%; overflow: hidden;
+  border: 3px solid var(--pick-color, var(--c-accent)); background: rgba(0, 0, 0, 0.2);
+}
+.pool-portrait img { width: 100%; height: 100%; object-fit: cover; }
+.pool-name { font-size: var(--fs-xl); }
+.pool-nick { font-size: var(--fs-xs); color: #6B7A94; }
+.pool-abilities { font-size: var(--fs-sm); color: #2B3A55; display: flex; flex-direction: column; gap: 4px; }
+.pool-abilities b { color: #14203A; }
+.pool-abilities .pool-line {
+  background: rgba(91, 170, 224, 0.12);
+  border-left: 4px solid var(--c-accent);
+  border-radius: var(--r-sm);
+  padding: 4px 10px;
+}
+.pool-close { align-self: start; }
+
+.pool-tabs { display: flex; gap: var(--sp-sm); flex-wrap: wrap; }
+.pool-tab {
+  border: 2px solid rgba(35, 50, 79, 0.25);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 6px 16px;
+  min-height: 40px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.pool-tab.is-on { background: var(--ink); color: #FFFDF6; border-color: var(--ink); }
+
+.pool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--pool-card-w, 200px), 1fr));
+  gap: var(--sp-md);
+  overflow-y: auto;
+  padding: 4px 6px 4px 2px;
+  align-content: start;
+}
+.pool-grid .card { width: 100%; height: auto; min-height: var(--pool-card-h, 292px); }
+.pool-grid .card__art { height: 104px; }
+.pool-grid .card__text { font-size: var(--fs-sm); }
+.pool-grid .card__name { font-size: var(--fs-lg); }
+.pool-grid .card:hover { transform: translateY(-4px) scale(1.02); }
+
+.pool-tip { font-size: var(--fs-xs); color: #6B7A94; margin: 0; }
+
+@media (max-width: 760px) {
+  .dialog--pool { --pool-card-w: 148px; --pool-card-h: 224px; padding: var(--sp-sm); }
+  .pool-grid .card__art { height: 76px; }
+  .pool-head { grid-template-columns: 1fr auto; }
+  .pool-abilities { grid-column: 1 / -1; }
+}
+
+/* ============================================================
+   选人页的"看卡池"小按钮
+   ============================================================ */
+.char-pick__pool {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  font-size: 11px;
+  padding: 3px 10px;
+  min-height: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(251, 247, 236, 0.35);
+  color: var(--chalk);
+  cursor: pointer;
+}
+.char-pick__pool:hover { background: rgba(0, 0, 0, 0.55); }
+.char-pick { position: relative; padding-bottom: 30px; }

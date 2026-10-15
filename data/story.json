@@ -1,0 +1,221 @@
+{
+  "version": 1,
+  "title": "八班风云 · 剧情模式",
+  "stages": [
+    {
+      "id": "stage1",
+      "no": 1,
+      "title": "课间十分钟，先来一局",
+      "subtitle": "第一战：把牌打出去，把成绩卷上去",
+      "goal": "学会最基础的三件事：出牌、看精力、结束回合",
+      "intro": {
+        "speaker": "旁白",
+        "lines": [
+          "下课铃一响，八班的课桌瞬间变成擂台。",
+          "班际挑战的报名表传到最后一排，还差一个名字。",
+          "骚哥把球踩在脚下：想上榜？先陪我热身。"
+        ]
+      },
+      "tip": "精力每回合都回满 3 点，别舍不得花——牌留到下课铃响，也不会自己变强。",
+      "encounters": [
+        {
+          "id": "stage1_1",
+          "title": "第 1 场 · 骚哥的热身赛",
+          "enemy": "zhangkaiyao",
+          "enemyScore": 6,
+          "playerScore": 10,
+          "enemyOpeningHand": 3,
+          "enemyDeck": [
+            "common_01",
+            "common_01",
+            "zhangkaiyao_02",
+            "zhangkaiyao_02",
+            "zhangkaiyao_09",
+            "zhangkaiyao_09",
+            "common_05",
+            "common_05",
+            "common_04",
+            "common_04"
+          ],
+          "taunt": "热身啊，我收着踢，你别紧张。",
+          "winLine": "行啊！这一脚抢断干净利落，我服。",
+          "loseLine": "没事，第一局就当压腿，再来一次你准赢。",
+          "teach": "出牌要花精力，精力每回合回满 3 点"
+        }
+      ],
+      "outro": {
+        "speaker": "张凯尧",
+        "lines": [
+          "骚哥把球衣下摆一撩，冲你竖了个大拇指。",
+          "报名表上，你的名字写在最前面。",
+          "好戏在后头——先学会怎么攒气势。"
+        ]
+      },
+      "reward": {
+        "text": "解锁：第 2 关「攒够气势再放狠话」"
+      }
+    },
+    {
+      "id": "stage2",
+      "no": 2,
+      "title": "攒够气势再放狠话",
+      "subtitle": "状态什么时候结算，护盾什么时候顶用",
+      "goal": "看懂气势攒大招、状态在回合结束结算、护盾怎么挡打击",
+      "intro": {
+        "speaker": "任乐",
+        "lines": [
+          "来来来，先坐，营养快线管够。",
+          "三条规矩：气势别乱花，状态看结算，护盾早点挂。",
+          "没听懂也没事，打一局就全懂了。"
+        ]
+      },
+      "tip": "气势每回合自动 +1，攒到 3 点就能放专属大招；大部分状态在下课铃响时结算。",
+      "encounters": [
+        {
+          "id": "stage2_1",
+          "title": "第 1 场 · 任妈妈的干儿子军团",
+          "enemy": "renle",
+          "enemyScore": 9,
+          "playerScore": 10,
+          "enemyOpeningHand": 4,
+          "enemyDeck": [
+            "renle_01",
+            "renle_01",
+            "renle_05",
+            "renle_07",
+            "renle_10",
+            "renle_18",
+            "common_09",
+            "common_01",
+            "common_01",
+            "common_04",
+            "common_05",
+            "common_05"
+          ],
+          "taunt": "先把几个娃叫来，等会儿热闹。",
+          "winLine": "哎哟，我这几个娃都没拦住你。",
+          "loseLine": "别急，下把我少叫两个娃，你再试试。",
+          "teach": "【干儿子】每层会在回合结束时给他加分，早点压住他"
+        },
+        {
+          "id": "stage2_2",
+          "title": "第 2 场 · 人设小天后的护盾课",
+          "enemy": "liuzijia",
+          "enemyScore": 10,
+          "playerScore": 10,
+          "enemyOpeningHand": 4,
+          "enemyDeck": [
+            "liuzijia_01",
+            "liuzijia_02",
+            "liuzijia_02",
+            "liuzijia_05",
+            "liuzijia_07",
+            "liuzijia_08",
+            "liuzijia_10",
+            "liuzijia_11",
+            "common_01",
+            "common_01",
+            "common_04",
+            "common_09"
+          ],
+          "taunt": "镜头给我，这场戏我要一条过。",
+          "winLine": "卡！这条你演得比我好，我认。",
+          "loseLine": "别灰心，我这条 NG 了八遍才过。",
+          "teach": "【面子】【创可贴】一层层挡打击，先磨掉护盾再爆发"
+        }
+      ],
+      "outro": {
+        "speaker": "刘梓嘉",
+        "lines": [
+          "刘梓嘉揭下一张创可贴，贴在你手背上：给你也加个造型。",
+          "围观同学的掌声这次是真的，不是配音。",
+          "门缝里塞进来一张纸：三班的挑战书。"
+        ]
+      },
+      "reward": {
+        "text": "解锁：第 3 关「班际挑战，全员到齐」"
+      }
+    },
+    {
+      "id": "stage3",
+      "no": 3,
+      "title": "班际挑战，全员到齐",
+      "subtitle": "打赢三场，替八班把挑战书退回去",
+      "goal": "学会读对手手牌、留牌爆发、抢下最后一分",
+      "intro": {
+        "speaker": "旁白",
+        "lines": [
+          "挑战书上写着：三班，午休，操场，不见不散。",
+          "八班四个人站成一排，把最前面那个位置留给你。",
+          "想过这一关，得先赢下他们仨。"
+        ]
+      },
+      "tip": "对手成绩涨到 20 分就立刻赢，所以别只顾自己涨分——他快满的时候，先把他压下去。",
+      "encounters": [
+        {
+          "id": "stage3_1",
+          "title": "第 1 场 · 体委的臭气阵地",
+          "enemy": "yuhaitian",
+          "enemyScore": 11,
+          "playerScore": 10,
+          "enemyOpeningHand": 4,
+          "enemyDeck": [
+            "yuhaitian_01",
+            "yuhaitian_02",
+            "yuhaitian_02",
+            "yuhaitian_04",
+            "yuhaitian_05",
+            "yuhaitian_07",
+            "yuhaitian_08",
+            "yuhaitian_09",
+            "yuhaitian_11",
+            "common_01",
+            "common_04",
+            "common_08"
+          ],
+          "taunt": "袖标戴上了，这场我认真的啊。",
+          "winLine": "行，你有点东西，后面俩比我还难缠。",
+          "loseLine": "别泄气，我这场就是来给你试手感的。",
+          "teach": "先亮出对手手牌再决定留哪张，别闭着眼睛打"
+        },
+        {
+          "id": "stage3_2",
+          "title": "第 2 场 · 任妈妈的团战",
+          "enemy": "renle",
+          "enemyScore": 13,
+          "playerScore": 10,
+          "enemyOpeningHand": 4,
+          "enemyDeck": [],
+          "taunt": "这回娃全叫来了，你可得站稳。",
+          "winLine": "行了，我这波团灭了，你上吧。",
+          "loseLine": "我人多欺负人少，不算本事，再来。",
+          "teach": "别把牌一次打光，留一张应对滚起来的【干儿子】"
+        },
+        {
+          "id": "stage3_3",
+          "title": "第 3 场 · 骚哥的全力局",
+          "enemy": "zhangkaiyao",
+          "enemyScore": 15,
+          "playerScore": 10,
+          "enemyOpeningHand": 4,
+          "enemyDeck": [],
+          "taunt": "到我了。这次不收着，世界波随时开。",
+          "winLine": "漂亮！八班这回真有你一号。",
+          "loseLine": "我这场球踢了十年，输了不丢人，再来。",
+          "teach": "大招别急着交，留到他快要冲满 20 分那一回合"
+        }
+      ],
+      "outro": {
+        "speaker": "旁白",
+        "lines": [
+          "挑战书被折成纸飞机，从窗口飞了出去。",
+          "四个人围过来，把你举高，又笑着放下。",
+          "上课铃响，八班全员回座——课间十分钟，赢了。"
+        ]
+      },
+      "reward": {
+        "text": "解锁：自选对决（无尽模式）＋ 全角色剧情回看"
+      }
+    }
+  ]
+}
