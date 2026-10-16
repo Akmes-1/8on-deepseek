@@ -738,10 +738,67 @@ h1, h2, h3 { margin: 0; font-family: var(--font-display); letter-spacing: 0.02em
   .result-badge { width: 96px; height: 96px; }
 }
 
-@media (max-width: 380px) {
-  .hand-zone { --hand-card-w: 124px; --hand-card-h: 180px; }
-  .side .meter-row { display: none; }
+/* ============================================================
+   手机竖屏（窄屏）：让"成绩条 + 气势 + 精力"两行都完整可见
+   ------------------------------------------------------------
+   桌面版 .score-block 有 min-width:320px，加上头像与间距后比手机屏还宽，
+   右侧的「精力」珠子和头像会被挤出屏幕；原来还有一条 <=380px 就
+   display:none 掉整个 meter-row 的规则，等于把精力/气势彻底藏了。
+   这里改成：第一行成绩条占满，第二行左边气势+精力、右边头像名字，
+   并把珠子、头像、字距一起缩小，保证任何手机宽度都放得下。
+   ============================================================ */
+@media (max-width: 620px) {
+  .side {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    padding: 4px 8px;
+  }
+  /* 第一行：成绩条占满整行（关键：去掉 320px 的 min-width） */
+  .score-block {
+    flex: 1 1 100%;
+    min-width: 0;
+    gap: 3px;
+  }
+  .score-row { gap: 4px; min-width: 0; }
+  /* 成绩条连同它里面的零件都必须能收缩，否则会把右边界顶出屏幕 */
+  .score-bar { height: 26px; border-radius: 8px; min-width: 0; }
+  .score-bar > * { min-width: 0; }
+  .score-label { font-size: 10px; letter-spacing: 0.02em; }
+  /* 刻度的字号也收一收，否则 0/5/10/15/20 会糊在一起 */
+  .score-scale { font-size: 8px; }
+  .score-num { font-size: 15px; }
+  /* 第二行：气势 + 精力 挨在一起，排在头像左边 */
+  .meter-row { gap: 8px; flex: 1 1 auto; min-width: 0; order: 1; }
+  .meter-label { margin-right: 3px; font-size: 10px; letter-spacing: 0; }
+  .pips { gap: 3px; }
+  .pip { width: 12px; height: 12px; border-width: 2px; }
+  .who {
+    order: 2;
+    flex: 0 0 auto;
+    gap: 5px;
+    flex-direction: row-reverse;   /* 头像靠屏幕外侧，名字在内侧 */
+  }
+  .portrait { width: 42px; height: 42px; border-width: 2px; }
+  .who-name { font-size: var(--fs-md); }
+  .who-nick { font-size: 10px; }
+  /* 状态贴纸行单独占一行，避免把上面两行挤变形 */
+  .status-row { flex: 1 1 100%; order: 3; min-height: 0; }
+  .foe-hand-badge { order: 4; margin-left: 0; font-size: 10px; padding: 2px 8px; }
 }
+
+/* 更窄的手机（<=420px）：成绩条上的刻度先让位，保证进度条本体的宽度 */
+@media (max-width: 420px) {
+  .score-scale { display: none; }
+  .score-goal { font-size: 12px; }
+  .score-num { right: 4px; font-size: 14px; }
+  .score-bar { height: 24px; }
+  .pip { width: 10px; height: 10px; }
+  .pips { gap: 2px; }
+  .meter-label { font-size: 9px; }
+  .hand-zone { --hand-card-w: 132px; --hand-card-h: 188px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }

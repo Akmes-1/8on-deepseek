@@ -190,6 +190,8 @@ function applyUrlParams() {
         state.storyRunner.progress = { cleared: [], encounter: {} };
       } catch (err) { /* 忽略 */ }
     }
+    // ?ruler=1 实时量尺：手机排版调试用，直接显示各容器实际宽度
+    if (q.get('ruler') === '1') showLayoutRuler();
     // ?tutstep=8 直接跳到教程第 8 步（见上方读取处）
     if (q.get('layout') === '1') setTimeout(reportLayout, 4000);
     // ?tapdemo=1 自测"点一下选中、再点一下打出"：
@@ -344,6 +346,52 @@ function demoTwoTapPlay(game) {
   }
 }
 
+/**
+ * 实时量尺（?ruler=1）：手机排版调试用。
+ * 直接把手牌、成绩条、资源行等容器的实际宽度写在屏幕左上角，一眼看出谁超宽。
+ */
+function showLayoutRuler() {
+  const box = document.createElement('pre');
+  box.id = 'layout-ruler';
+  box.style.cssText = 'position:fixed;left:0;top:0;z-index:9999;margin:0;padding:4px 6px;'
+    + 'background:rgba(8,16,14,.86);color:#EAF2F8;font:10px/1.35 Consolas,monospace;'
+    + 'border-bottom-right-radius:8px;pointer-events:none;white-space:pre';
+  document.body.append(box);
+
+  const tick = () => {
+    const vw = document.documentElement.clientWidth;
+    const w = (sel) => {
+      const el = document.querySelector(sel);
+      if (!el) return '—';
+      const b = el.getBoundingClientRect();
+      return `${Math.round(b.width)}@${Math.round(b.right)}`;
+    };
+    const narrow = window.matchMedia('(max-width: 620px)').matches;
+    // 右边距 = 右边界到视口右边的距离，缩到别的宽度时这个值基本不变，
+    // 所以"若屏幕更窄会怎样"可以用 假设宽度 - 右边距 推算
+    const guess = (sel, target = 390) => {
+      const el = document.querySelector(sel);
+      if (!el) return '—';
+      const b = el.getBoundingClientRect();
+      const gapRight = vw - b.right;
+      return `${Math.round(target - gapRight)}@${target}`;
+    };
+    box.textContent = [
+      `视口 ${vw} · 窄屏规则${narrow ? ' 生效' : ' 未生效'}`,
+      `board ${w('.board')}  side ${w('.side--me')}`,
+      `score块 ${w('.side--me .score-block')}`,
+      `成绩条 ${w('.side--me .score-bar')}`,
+      `资源行 ${w('.side--me .meter-row')}  头像块 ${w('.side--me .who')}`,
+      `手牌区 ${w('.hand-zone')}`,
+      `若宽390 → 成绩条 ${guess('.side--me .score-bar')} 资源行 ${guess('.side--me .meter-row')}`,
+      `屏宽标尺 ${'='.repeat(Math.max(4, Math.round(vw / 10)))} (${vw})`
+    ].join('\n');
+  };
+  tick();
+  window.addEventListener('resize', tick);
+  setInterval(tick, 800);
+}
+
 /** 启动诊断（自测用）：?diag=1 会把关键状态打到屏幕上 */
 function reportDiag() {
   const data = {
@@ -417,6 +465,35 @@ function reportLayout() {
   });
   const data = {
     reportKind: 'layout',
+    /** 横向超宽体检：手机排版最常见的问题就是某个元素比屏幕还宽 */
+    overflow: (() => {
+      const vw = document.documentElement.clientWidth;
+      const out = { viewportWidth: vw, over: [] };
+      ['.board', '.side--me', '.side--foe', '.side--me .score-block', '.side--me .score-row',
+        '.side--me .score-bar', '.side--me .meter-row', '.side--me .who',
+        '.side--foe .meter-row', '.hand-zone', '.arena'].forEach((sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return;
+        const b = el.getBoundingClientRect();
+        out[sel.replace(/[.\s>-]+/g, '_')] = { w: Math.round(b.width), left: Math.round(b.left), right: Math.round(b.right) };
+      });
+      // 成绩条内部的零件，看谁把宽度顶出去了
+      const bar = document.querySelector('.side--me .score-bar');
+      if (bar) {
+        out.scoreParts = {};
+        [...bar.children].forEach((el) => {
+          const b = el.getBoundingClientRect();
+          out.scoreParts[el.className.split(' ')[0] || el.tagName.toLowerCase()] = `${Math.round(b.width)}px@${Math.round(b.left)}`;
+        });
+      }
+      document.querySelectorAll('#screen-battle *').forEach((el) => {
+        const b = el.getBoundingClientRect();
+        if (b.width > 0 && b.right > vw + 1 && out.over.length < 12) {
+          out.over.push(`${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}.${String(el.className || '').split(' ').filter(Boolean).slice(0, 2).join('.')} +${Math.round(b.right - vw)}px`);
+        }
+      });
+      return out;
+    })(),
     tutorialStep: (() => {
       const el = document.querySelector('.tut');
       const stepTxt = el && !el.hidden ? (el.querySelector('.tut__step') || {}).textContent : null;
@@ -459,6 +536,8 @@ function reportLayout() {
   const pre = document.createElement('pre');
   pre.id = 'layout-report';
   pre.style.cssText = 'position:fixed;inset:0;z-index:999;background:#0E1A16;color:#EAF2F8;font:13px Consolas,monospace;padding:16px;margin:0;overflow:auto;white-space:pre-wrap';
+  // 窄屏用紧凑字号，保证一屏能看完整
+  if (document.documentElement.clientWidth < 520) pre.style.font = '9px/1.35 Consolas,monospace';
   pre.textContent = JSON.stringify(data, null, 2);
   document.body.append(pre);
   console.log('[layout]', data);
