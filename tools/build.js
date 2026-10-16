@@ -88,12 +88,14 @@ ORDER.forEach((rel) => {
 });
 const bundle = parts.join('\n');
 
-/* ================= 2. 样式 ================= */
+/* ---------------- 2. 样式 ---------------- */
 const CSS_FILES = ['styles/main.css', 'styles/cards.css', 'styles/card-v2.css', 'styles/animations.css', 'styles/screens.css', 'styles/modes.css'];
 let css = CSS_FILES.map((rel) => `\n/* ===== ${rel} ===== */\n${fs.readFileSync(path.join(ROOT, rel), 'utf8')}`).join('\n');
-const dataUri = (rel) => `data:image/svg+xml;base64,${fs.readFileSync(path.join(ROOT, rel)).toString('base64')}`;
 
-/* ================= 3. 贴图包 ================= */
+/* ---------------- 3. 贴图包 =--------------- */
+// 贴图都在 art/art-bundle.js 里（window.__ART_INLINE__ = { 路径: dataURI }），
+// 注意 art/ 下已经没有单独的 SVG 文件了，所以取图必须优先查这个包。
+let artMap = {};
 let artJson = '{}';
 let artCount = 0;
 const artBundlePath = path.join(ROOT, 'art', 'art-bundle.js');
@@ -103,13 +105,31 @@ if (fs.existsSync(artBundlePath)) {
   const end = raw.lastIndexOf('}');
   if (start >= 0 && end > start) {
     artJson = raw.slice(start, end + 1);
-    artCount = Object.keys(JSON.parse(artJson)).length;
+    artMap = JSON.parse(artJson);
+    artCount = Object.keys(artMap).length;
   }
 }
 if (!artCount) console.warn('  ！没读到贴图包（art/art-bundle.js），产物会缺插画');
 
+/** 取一张贴图的 data URI：先查贴图包，包没有再退回读文件 */
+function dataUri(rel) {
+  const key = String(rel).split(path.sep).join('/').replace(/^(\.\.\/)+/, '');
+  if (artMap[key]) return artMap[key];
+  const abs = path.join(ROOT, key);
+  if (fs.existsSync(abs)) return `data:image/svg+xml;base64,${fs.readFileSync(abs).toString('base64')}`;
+  return null;
+}
+
+if (!SMALL) {
+  css = css.replace(/url\(["']?\.\.\/(art\/[^"')]+)["']?\)/g, (m, rel) => {
+    const uri = dataUri(rel);
+    return uri ? `url("${uri}")` : m;
+  });
+}
+
 /* ================= 4. 组 HTML ================= */
 let html = fs.readFileSync(SRC_HTML, 'utf8');
+let failedImgs = [];
 
 const errorCatcher = `  <script>
   (function () {
@@ -146,15 +166,25 @@ html = html.replace('</body>', `${errorCatcher}\n  <script type="module">\n${bun
 if (!SMALL) {
   let imgs = 0;
   html = html.replace(/src="(?:\.\.\/)?(art\/[^"]+)"/g, (m, rel) => {
-    const abs = path.join(ROOT, rel);
-    if (!fs.existsSync(abs)) return m;
+    const uri = dataUri(rel);
+    if (!uri) { failedImgs.push(rel); return m; }
     imgs += 1;
-    return `src="${dataUri(rel)}"`;
+    return `src="${uri}"`;
   });
   html = html.replace('</body>', `  <script>window.__ART_INLINE__ = ${artJson};</script>\n</body>`);
   console.log(`· 内联了 ${linkCount} 个样式表、${imgs} 张直接引用的贴图、${artCount} 张运行时贴图`);
 } else {
   console.log(`· 内联了 ${linkCount} 个样式表（贴图仍读 art/ 目录）`);
+}
+
+// 自检：产物里不能再有任何外部贴图引用（file:// 双击必然裂图）
+{
+  const externals = [...html.matchAll(/src="(?!data:)([^"]+\.svg)"/g)].map((m) => m[1]);
+  if (externals.length) {
+    console.error('✘ 产物里还有 ' + externals.length + ' 个外链贴图：' + [...new Set(externals)].join(', '));
+    console.error('  这些在本地双击（file://）时会裂图，请检查它们是否在 art/art-bundle.js 里。');
+    process.exit(1);
+  }
 }
 
 html = html.replace('<head>', `<head>

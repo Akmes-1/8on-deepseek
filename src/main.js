@@ -306,39 +306,39 @@ function demoTwoTapPlay(game) {
   const arenaBefore = document.querySelectorAll('#battlefield .card, .arena .card, .slot .card').length;
   note(`手牌 ${before} 张，准备出：《${card.name}》`);
 
-  // 点击：直接派发到卡牌元素（和玩家点卡牌走同一个监听器）
+  // 点击：按坐标找"真正被点到的那个元素"，再从它派发完整事件序列
+  // （真人点击就是这样：事件从最上层元素冒泡上去，而不是直接打在卡牌上）
   const realClick = (el) => {
     const r = el.getBoundingClientRect();
     const x = Math.round(r.left + r.width / 2);
-    const y = Math.round(r.top + r.height * 0.6);
+    const y = Math.round(r.top + r.height * 0.55);
+    const target = document.elementFromPoint(x, y) || el;
     ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach((type) => {
-      const Ev = type.indexOf('pointer') === 0 ? (window.PointerEvent || MouseEvent) : MouseEvent;
-      el.dispatchEvent(new Ev(type, { bubbles: true, cancelable: true, clientX: x, clientY: y }));
+      const Ev = type.indexOf('pointer') === 0 && window.PointerEvent ? PointerEvent : MouseEvent;
+      target.dispatchEvent(new Ev(type, { bubbles: true, cancelable: true, clientX: x, clientY: y }));
     });
-    return el;
+    return { target, x, y };
   };
+  const describe = (el) => !el ? '(空)'
+    : `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}.${String(el.className || '').split(' ').filter(Boolean).slice(0, 2).join('.')}`;
 
   // 第 1 次点击：应该只是选中
-  const hit = realClick(cardEl);
+  const hit1 = realClick(cardEl);
   const picked = document.querySelector('#hand .card.is-picked');
-  note(`第 1 次点击（命中 ${hit.className.split(' ')[0] || hit.tagName}）→ ` + (picked ? '✔ 已选中（抬起 + 提示条）' : '✘ 没进入选中状态'));
-  note('提示条文字：' + (picked ? picked.dataset.hint : '(空)'));
+  note(`第 1 次点击 → 落点 (${hit1.x},${hit1.y}) 上是 ${describe(hit1.target)}`);
+  note(`  → ${picked ? '✔ 已选中（提示条：' + picked.dataset.hint + '）' : '✘ 没进入选中状态'}`);
 
   // 第 2 次点击：应该真的打出去
   window.setTimeout(() => {
     // 手牌可能被重绘过，按 uid 找当前这一刻的那张牌（和真人玩家看到的一致）
     const live = [...document.getElementById('hand').querySelectorAll('.card')]
       .find((el) => el.dataset.uid === card.uid || el.dataset.id === card.id) || cardEl;
-    const stillThere = document.getElementById('hand').contains(live);
-    note(`（第 2 次点击前）卡片还在手牌里吗：${stillThere ? '在' : '已被重绘换掉'}`
+    note(`（第 2 次点击前）卡片还在手牌里吗：${document.getElementById('hand').contains(live) ? '在' : '已被重绘换掉'}`
       + ` · is-picked：${live.classList.contains('is-picked') ? '在' : '已被清掉'}`);
-    realClick(live);
-    const after = hand.querySelectorAll('.card').length;
-    // 手牌数会因为"出牌后抽牌"回到原数，所以看引擎自己的记录更可靠
+    const hit2 = realClick(live);
+    note(`第 2 次点击 → 落点 (${hit2.x},${hit2.y}) 上是 ${describe(hit2.target)}`);
     const played = game.cardsPlayedThisTurn || 0;
-    const lastEvents = game.log.slice(-5).map((e) => e.type).join(' → ');
-    note(`第 2 次点击 → 手牌 ${after} 张，本回合引擎记录已出牌 ${played} 张`);
-    note(`最近事件：${lastEvents}`);
+    note(`  → 引擎记录本回合已出牌 ${played} 张 · 最近事件 ${game.log.slice(-4).map((e) => e.type).join(' → ')}`);
     note(played > 0 ? '✔ 出牌成功' : '✘ 引擎没有记录到出牌');
   }, 1500);
   }

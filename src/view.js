@@ -93,8 +93,11 @@ export class BattleView {
       this.el.foeHandCount.textContent = `手牌 ${foe.hand.length}`;
       this.el.foeHandCount.hidden = false;
     }
-    this.el.hand.style.pointerEvents = waitingMe ? 'auto' : 'none';
-    this.el.hand.style.opacity = waitingMe ? '1' : '0.82';
+    // 注意：这里**不能**给整副手牌设 pointer-events:none。
+    // 之前那样写会让"没轮到 / 正在等结算"时连看牌都点不动，
+    // 而且只要 waiting 一时对不上，卡片就完全点不了（鼠标和手指都点不动）。
+    // 单张牌能不能出，由 .is-unplayable 和 tryPlay 里的引擎判断负责。
+    this.el.hand.style.opacity = waitingMe ? '1' : '0.92';
     if (game.over) this.el.arenaHint.textContent = game.winner === game.humanIndex ? '你赢了这一局！' : '这局……先这样吧。';
     else if (myTurn) this.el.arenaHint.textContent = '';
   }
